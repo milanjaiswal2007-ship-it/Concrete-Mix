@@ -1,103 +1,89 @@
 # ConcreteMix AI — IS 10262:2019 Concrete Mix Design Platform
 
-**ConcreteMix AI** is a production-oriented, code-compliant civil engineering platform for concrete mix proportioning and code verification.
+An AI-assisted concrete mix design and review platform built to support concrete mix design using Indian Standards, particularly **IS 10262:2019** and **IS 456:2000**.
 
-Tagline: *From design requirements to code-verified concrete mix proportions.*
+ConcreteMix AI aims to make concrete mix design more accessible by combining engineering calculations, standards-based checks, knowledge retrieval, and recommendations in a single web application.
 
----
+## Key Features
 
-## Features
-- **Two-Tier Proportioning Architecture**:
-  - **Tier 1 (IS 10262:2019 Engine)**: 100% deterministic mathematical proportioning procedure of **IS 10262:2019** and durability limits of **IS 456:2000 (Table 5)** for conventional OPC, PPC, and PSC with SCMs.
-  - **Tier 2 (Literature-Anchored Reference Engine)**: Recognizes and proportions **12 Advanced Concrete Types** (301 published reference mixes) with nearest-neighbor literature retrieval, physical absolute volume closure, and statutory constraint auditing.
-- **12 Special Concrete Types Supported**:
-  1. Geopolymer (Alkali-activated fly ash / GGBS, 8–16M NaOH)
-  2. Self-Healing Concrete (Bacterial spores, crystalline admixtures, microencapsulation)
-  3. Self-Sensing Concrete (Piezoresistive CNT, carbon fibers, graphene nanoplatelets)
-  4. Self-Compacting Concrete (SCC, EFNARC guidelines, powder content 450–650 kg/m³)
-  5. 3D-Printed Concrete (3DCP, buildability, thixotropy, layer extrudability)
-  6. Ultra-High Performance Concrete (UHPC, 150–200 MPa, w/b $\le$ 0.22, steel fibers)
-  7. Engineered Cementitious Composites (ECC / Bendable Concrete, PVA fibers, 2–5% tensile ductility)
-  8. Lightweight Concrete (LECA lightweight aggregate & cellular foam concrete)
-  9. CO2-Mineralized / Injected Concrete (CarbonCure, Solidia accelerated carbonation)
-  10. Sea-Sand & Seawater Concrete (SS-SWC with non-corrosive FRP reinforcement)
-  11. Pervious Concrete (Hydraulic conductivity, 15–25% interconnected void ratio)
-  12. Fiber-Reinforced Concrete (FRC / SFRC / Synthetic macro-fibers)
-- **Natural Language Parsing & Keyword Detection**: Deterministic regex extraction and multi-word phrase matching across 1,200+ specialized keywords with word-boundary disambiguation.
-- **401 Solved Problems Knowledge Base**:
-  - 100 Conventional IS 10262 benchmark problems (Groups A–F)
-  - 301 Literature-verified special concrete reference mixes
-- **Hybrid Retrieval (RAG)**: BM25 keyword matching combined with offline TF-IDF cosine semantic search and structural metadata filtering (`concrete_type`, `grade`, `exposure`).
-- **Strict Disclaimers & Statutory Badging**: Clear literature reference disclaimers and amber/green verification status badges on all special mix outputs. IS 10262 code is preserved untouched.
+- **Natural-language problem interpretation:** Interpret concrete construction requirements described in ordinary language.
+- **Concrete mix design assistance:** Support the concrete mix design workflow using relevant engineering inputs.
+- **Indian Standards-based checks:** Help evaluate design requirements against applicable provisions of IS 10262:2019 and IS 456:2000.
+- **Material and mix recommendations:** Assist with selecting appropriate materials and mix parameters based on the specified requirements.
+- **Knowledge retrieval:** Use available concrete mix design examples and reference data to support relevant recommendations.
+- **Mix design review:** Help identify potential inconsistencies, missing inputs, and compliance concerns.
+- **Data-driven approach:** Organize concrete mix design examples and supporting datasets for retrieval and analysis.
 
----
+## Intended Use
 
-## Directory Structure
-```
-concretemix-ai/
-├── app/
-│   ├── config.py             # App settings (Pydantic)
-│   ├── database.py           # SQLite + SQLAlchemy synchronous engine
-│   ├── models.py             # ORM models (Example, Document, DocumentChunk, DesignSession)
-│   ├── schemas.py            # Pydantic request/response schemas
-│   ├── main.py               # FastAPI entrypoint, template routes & SEO
-│   ├── engine/
-│   │   ├── is10262.py        # Preserved deterministic IS 10262:2019 calculation engine
-│   │   ├── parser.py         # Natural-language problem statement parser
-│   │   └── validator.py      # Input validation & cross-field durability boundary checks
-│   ├── rag/
-│   │   ├── embeddings.py     # Offline TF-IDF vectorizer & cosine similarity indexer
-│   │   ├── search.py         # Hybrid BM25 + TF-IDF searcher with metadata filtering
-│   │   ├── examples.py       # 100 Solved benchmark examples manager & similarity ranker
-│   │   └── ingestion.py      # Document chunking & PDF/DOCX text extraction pipeline
-│   ├── api/
-│   │   ├── design.py         # POST /api/design calculation endpoint
-│   │   ├── examples.py       # GET /api/examples & /api/examples/{id}
-│   │   ├── search.py         # GET /api/search hybrid query endpoint
-│   │   ├── documents.py      # PDF upload & inspection endpoints
-│   │   └── admin.py          # Admin re-indexing & database statistics
-│   ├── templates/            # High-end Jinja2 templates (Inter + Tailwind CSS)
-│   │   ├── base.html
-│   │   ├── index.html        # Landing page
-│   │   ├── design.html       # 7-Step Mix Design Workbench
-│   │   ├── library.html      # 100 Solved Problems Knowledge Library
-│   │   ├── example_detail.html # Deep-dive problem solution & audit
-│   │   ├── methodology.html  # Technical calculation methodology
-│   │   ├── docs.html         # Documentation & FAQ
-│   │   ├── admin.html        # Protected ingestion management
-│   │   └── seo/              # Educational SEO pages
-│   └── static/
-├── data/
-│   ├── concretemix.db        # SQLite database (100 problems imported)
-│   ├── tfidf_index/          # Persisted TF-IDF vocabulary, doc matrix & IDF weights
-│   └── examples/             # Raw JSONL and summary CSV datasets
-├── tests/
-│   └── test_engine.py        # Pytest test suite
-└── requirements.txt
-```
+The platform is intended for students, civil engineering professionals, researchers, and users learning about concrete mix design.
 
----
+It aims to support workflows involving:
 
-## Quickstart
+- Conventional concrete mix design
+- High-strength concrete requirements
+- Workability and material selection
+- Exposure-condition considerations
+- Preliminary mix design review
+- Standards-based engineering checks
 
-### 1. Requirements
-- Python 3.10+ (tested on Python 3.13)
+The actual design must be evaluated against the project requirements, applicable standards, material test results, and trial mix results.
 
-### 2. Run the Platform
-Navigate to the project root and launch Uvicorn:
+## Standards and References
+
+The platform is designed around the following Indian Standards:
+
+- **IS 10262:2019** — Concrete Mix Proportioning: Guidelines
+- **IS 456:2000** — Plain and Reinforced Concrete: Code of Practice
+
+Always consult the applicable official standards and amendments for authoritative requirements.
+
+## Technology and Project Structure
+
+The repository contains the application code, supporting data, and resources used by the platform.
+
+Main directories and resources include:
+
+- `app/` — Application modules and core functionality
+- `data/` — Concrete mix design datasets and supporting data
+- `data/tfidf_index/` — Text retrieval index resources
+- `data/examples/` — Example concrete mix design records
+- `tests/` — Test files, where available
+- `scripts/` — Supporting scripts, where available
+- `requirements.txt` — Python dependencies, if present
+
+The exact modules and available functionality may evolve as the project develops.
+
+## Running the Project Locally
+
+1. Install a compatible version of Python.
+2. Clone this repository.
+3. Open a terminal in the project directory.
+4. Install the dependencies listed in `requirements.txt`.
+5. Follow the application's entry-point instructions and configuration requirements.
+
+Example:
+
 ```bash
-cd concretemix-ai
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+git clone https://github.com/milanjaiswal2007-ship-it/Concrete-Mix.git
+cd Concrete-Mix
+pip install -r requirements.txt
 ```
 
-Open your browser at:
-- **Application Overview**: [http://localhost:8000](http://localhost:8000)
-- **Mix Design Workbench**: [http://localhost:8000/design](http://localhost:8000/design)
-- **100 Solved Problems Library**: [http://localhost:8000/library](http://localhost:8000/library)
-- **Interactive OpenAPI Docs**: [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+The exact command to start the application depends on the entry point configured in the project.
 
-### 3. Run the Automated Tests
-```bash
-python -m pytest tests -v
-```
-All 4 test suites will run and verify calculations, parsing, boundaries, and retrieval.
+## Engineering Disclaimer
+
+ConcreteMix AI is an engineering assistance tool, not a replacement for professional engineering judgment or mandatory compliance checks.
+
+Its outputs and recommendations must be independently verified against the applicable standards, approved project specifications, material properties, laboratory testing, and trial mix results before construction use.
+
+## Project Status
+
+This project is under development. Features, datasets, calculations, and recommendations may be refined as validation and testing progress.
+
+## Author
+
+**Milan Jaiswal**
+
+Civil Engineering | Concrete Technology | AI-Assisted Engineering
