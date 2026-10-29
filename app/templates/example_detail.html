@@ -1,0 +1,855 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if example.concrete_type and example.concrete_type != 'conventional' %}
+{{ example.external_id }}: {{ example.concrete_type|replace('-', ' ')|title }} Mix Reference — ConcreteMix AI
+{% else %}
+Practice Mix Design: {{ example.external_id }} ({{ example.grade }}) — ConcreteMix AI
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    {% if example.concrete_type and example.concrete_type != 'conventional' %}
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- SPECIAL CONCRETE REFERENCE RECORD VIEW                                -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- Top Breadcrumb & Actions -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+            <a href="/library?type={{ example.concrete_type }}" class="text-xs font-semibold text-teal-700 hover:underline flex items-center gap-1 mb-1">
+                &larr; Back to Special Concrete Library ({{ example.concrete_type|replace('-', ' ')|title }})
+            </a>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight flex flex-wrap items-center gap-2">
+                <span>{{ example.external_id }} &mdash; {{ example.concrete_type|replace('-', ' ')|title }}</span>
+                <span class="text-xs uppercase font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg">
+                    {{ example.grade }}
+                </span>
+            </h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="/design?prompt={{ example.problem_statement|urlencode }}" class="px-4 py-2 rounded-xl text-xs font-bold bg-teal-700 text-white shadow-sm hover:bg-teal-800 transition flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Open in Mix Workbench
+            </a>
+            <button type="button" onclick="window.print()" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition flex items-center gap-1.5 no-print">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Print / PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- MANDATORY LITERATURE REFERENCE BANNER -->
+    <div class="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 text-amber-950 flex items-start gap-3.5 shadow-sm">
+        <svg class="w-6 h-6 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div class="space-y-1">
+            <h3 class="text-sm font-bold text-amber-900 uppercase tracking-wide">Literature Reference-Based Mix Proposal</h3>
+            <p class="text-xs text-amber-800 leading-relaxed font-medium">
+                Reference-based mix from published literature &mdash; <strong>not an IS 10262 calculation</strong>. Special concretes (geopolymer, UHPC, self-healing, etc.) follow distinct chemical and physical reaction kinetics not governed by Indian Standard code empirical curves. <strong>Trial mixes and lab verification are mandatory prior to any structural deployment.</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Benchmark Problem Statement Card -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex justify-between items-center">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Problem Statement & Scope</span>
+            <div>
+                {% if example.verification_status == 'verified' %}
+                <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Verified Benchmark
+                </span>
+                {% else %}
+                <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1" title="Literature reference mix — trial batching required">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> Literature Reference (Unverified)
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <p class="text-sm text-slate-800 leading-relaxed bg-[#FAFAF8] p-4 rounded-xl border border-slate-200/80 font-sans">
+            {{ example.problem_statement }}
+        </p>
+
+        <!-- Technical Boundary Conditions -->
+        <div class="border-t border-slate-100 pt-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-2">Technical Inputs & Boundary Conditions:</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Concrete Type</span>
+                    <span class="font-bold text-slate-800 capitalize">{{ example.concrete_type|replace('-', ' ') }}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Exposure & Member</span>
+                    <span class="font-bold text-slate-800">{{ example.exposure|upper }} | {{ example.member|title }}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Binder / Precursor System</span>
+                    <span class="font-bold text-slate-800 truncate" title="{{ example.binder_system }}">{{ example.binder_system or 'Special Binder' }}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Curing Regime</span>
+                    <span class="font-bold text-slate-800 truncate" title="{{ example.curing }}">{{ example.curing or 'Standard Curing' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mix Proportions per m³ -->
+    <div class="bg-white p-6 rounded-2xl border border-teal-200 shadow-sm space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-teal-700">Batching Schedule</span>
+                <h2 class="text-xl font-black text-slate-900 mt-0.5">Mix Quantities per 1.0 m³ Batch</h2>
+            </div>
+            <div class="text-right">
+                <span class="text-[10px] uppercase font-semibold text-slate-400 block">Indicative Strength (28d)</span>
+                <span class="text-lg font-mono font-black text-teal-800">
+                    {% if example.strength_lo and example.strength_hi %}
+                        {{ example.strength_lo }} &ndash; {{ example.strength_hi }} MPa
+                    {% else %}
+                        {{ example.grade }}
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Component Masses Breakdown Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-600 uppercase border-y border-slate-200">
+                    <tr>
+                        <th class="py-2.5 px-3">Component / Material</th>
+                        <th class="py-2.5 px-3 text-right">Dosage / Mass</th>
+                        <th class="py-2.5 px-3">Unit</th>
+                        <th class="py-2.5 px-3">Classification & Role</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    {% for key, val in example.mix_per_m3.items() %}
+                        {% if key.endswith('_kg') or key.endswith('_litres') %}
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-2.5 px-3 font-semibold text-slate-800 font-mono">
+                                {{ key|replace('_kg', '')|replace('_litres', '')|replace('_', ' ')|title }}
+                            </td>
+                            <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-900 text-sm">
+                                {{ val }}
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-500 font-mono">
+                                {% if key.endswith('_litres') %}L/m³{% else %}kg/m³{% endif %}
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-600">
+                                {% if 'cement' in key or 'fly_ash' in key or 'ggbs' in key or 'silica_fume' in key or 'binder' in key %}
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">Binder / Precursor</span>
+                                {% elif 'water' in key or 'naoh' in key or 'silicate' in key or 'activator' in key %}
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-50 text-cyan-700 border border-cyan-200">Liquid / Activator</span>
+                                {% elif 'aggregate' in key or 'sand' in key or 'leca' in key %}
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Aggregate Phase</span>
+                                {% elif 'fiber' in key or 'fibre' in key %}
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">Reinforcing Fiber</span>
+                                {% elif 'admixture' in key or 'superplasticiser' in key %}
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Chemical Admixture</span>
+                                {% else %}
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">Special Additive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Technical Ratios & Mix Parameters -->
+        <div class="border-t border-slate-100 pt-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-3">Mix Design Parameters & Key Ratios:</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                {% for key, val in example.mix_per_m3.items() %}
+                    {% if not (key.endswith('_kg') or key.endswith('_litres')) %}
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">{{ key|replace('_', ' ') }}</span>
+                        <span class="font-mono font-bold text-slate-800 text-sm mt-0.5 block">{{ val }}</span>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Expected Engineering Properties & Durability Card -->
+    {% if example.expected_properties %}
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Expected Engineering Properties & Durability
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            {% for prop_name, prop_val in example.expected_properties.items() %}
+            <div class="p-3.5 rounded-xl bg-[#FAFAF8] border border-slate-200/80 space-y-1">
+                <span class="text-slate-500 font-bold uppercase text-[10px]">{{ prop_name|replace('_', ' ') }}</span>
+                <p class="text-slate-800 font-medium text-xs">{{ prop_val }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Detailed Step-by-Step Proportioning Calculation -->
+    {% if example.solution_steps %}
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    Step-by-Step Mix Design Calculations & Literature Framework
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Explicit technical calculations, governing equations, and published literature clauses.</p>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded bg-teal-50 text-teal-800 border border-teal-200">
+                Detailed Derivation
+            </span>
+        </div>
+
+        <div class="space-y-3.5">
+            {% for s in example.solution_steps %}
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 transition space-y-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/60 pb-2">
+                    <span class="font-bold text-slate-900 text-xs sm:text-sm">{{ s.step }}</span>
+                    <span class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-teal-100/70 text-teal-900 border border-teal-200 self-start sm:self-auto">{{ s.clause }}</span>
+                </div>
+                {% if s.clause_statement %}
+                <p class="text-xs text-slate-600 italic leading-relaxed">{{ s.clause_statement }}</p>
+                {% endif %}
+                {% if s.formula %}
+                <div class="px-2.5 py-1.5 bg-slate-100 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-800">
+                    <span class="text-slate-400 uppercase text-[9px] font-bold block mb-0.5">Governing Formula:</span>
+                    <span>{{ s.formula }}</span>
+                </div>
+                {% endif %}
+                <div class="p-2.5 bg-white rounded-lg border border-teal-200/90 font-mono text-xs text-teal-950 font-semibold leading-relaxed">
+                    <span class="text-teal-700 uppercase text-[9px] font-bold block mb-0.5 font-sans">Calculation & Substitution:</span>
+                    {{ s.calculation or s.value }}
+                </div>
+                {% if s.note %}
+                <p class="text-[11px] text-slate-500 leading-relaxed font-sans">
+                    <strong class="text-slate-700">Engineering Note:</strong> {{ s.note }}
+                </p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Research Reference Citations & Technical Notes -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            Literature Citations & Research Notes
+        </h2>
+        
+        {% if example.source_refs %}
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1">
+            <span class="text-[10px] font-bold uppercase text-slate-400 block">Primary Published Sources:</span>
+            <p class="font-sans leading-relaxed text-slate-800">{{ example.source_refs }}</p>
+        </div>
+        {% endif %}
+
+        {% if example.notes %}
+        <div class="p-4 rounded-xl bg-amber-50/50 border border-amber-200/80 text-xs text-amber-950 space-y-1">
+            <span class="text-[10px] font-bold uppercase text-amber-800 block">Engineering & Lab Notes:</span>
+            <p class="font-sans leading-relaxed">{{ example.notes }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Quality Checks Card -->
+        <div class="border-t border-slate-100 pt-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-2">Quality & Physical Checks:</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                {% for check, passed in example.checks.items() %}
+                <div class="flex items-center justify-between p-2.5 rounded-lg border {% if passed %}bg-emerald-50/50 border-emerald-200 text-emerald-900{% else %}bg-red-50 border-red-200 text-red-900{% endif %}">
+                    <span class="font-mono">{{ check|replace('_', ' ')|title }}</span>
+                    <span class="font-bold">{% if passed %}PASSED &check;{% else %}FAILED &cross;{% endif %}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="pt-2 text-right">
+            <a href="/learn/{{ example.concrete_type }}-mix-design" class="text-xs font-bold text-teal-700 hover:text-teal-900 hover:underline">
+                Read Complete Engineering Guide for {{ example.concrete_type|replace('-', ' ')|title }} Mixes &rarr;
+            </a>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- CONVENTIONAL CONCRETE INTERACTIVE PRACTICE / IS 10262 VIEW             -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Top Navigation & Status -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+            <a href="/library" class="text-xs font-semibold text-teal-700 hover:underline flex items-center gap-1 mb-1">
+                &larr; Back to 100 Solved Problems Library
+            </a>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <span>{{ example.external_id }} &mdash; {{ example.grade }} Concrete Mix Design</span>
+                <span class="text-xs uppercase font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg">{{ example.group }}</span>
+            </h1>
+        </div>
+
+        <!-- Mode Toggle Switcher -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+            <button type="button" id="tabPractice" class="px-4 py-2 rounded-lg bg-teal-700 text-white shadow-sm transition flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                Interactive Practice Mode
+            </button>
+            <button type="button" id="tabReference" class="px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Reference Solution Sheet
+            </button>
+        </div>
+    </div>
+
+    <!-- Benchmark Problem Statement & Given Test Data Card -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex justify-between items-center">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Problem Statement</span>
+            <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                Verification: {{ example.verification_status }}
+            </span>
+        </div>
+        <p class="text-sm text-slate-800 leading-relaxed bg-[#FAFAF8] p-4 rounded-xl border border-slate-200/80 font-sans">
+            {{ example.problem_statement }}
+        </p>
+
+        <!-- Test Data Given in Problem (IS 10262 C-2) -->
+        <div class="border-t border-slate-100 pt-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-2">Given Material & Test Parameters:</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Grade & Exposure</span>
+                    <span class="font-bold text-slate-800">{{ example.grade }} | {{ example.exposure|upper }}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Nominal Aggregate</span>
+                    <span class="font-bold text-slate-800">{{ example.max_size }} mm Angular</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Fine Aggregate</span>
+                    <span class="font-bold text-slate-800">Zone {{ example.zone }} Sand</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Target Slump</span>
+                    <span class="font-bold text-slate-800">{{ example.slump }} mm</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Cement Grade</span>
+                    <span class="font-bold text-slate-800">OPC {{ example.cement_grade }} Grade</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Specific Gravities</span>
+                    <span class="font-mono text-slate-800 text-[11px]">C: {{ example.inputs.sg_cement|default(3.15) }} | CA: {{ example.inputs.sg_ca|default(2.74) }} | FA: {{ example.inputs.sg_fa|default(2.65) }}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Water Absorption</span>
+                    <span class="font-mono text-slate-800 text-[11px]">CA: {{ example.inputs.abs_ca|default(0.5) }}% | FA: {{ example.inputs.abs_fa|default(1.0) }}%</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Placement & SCM</span>
+                    <span class="font-mono text-slate-800 text-[11px] truncate">{{ example.inputs.placement|default('Chute') }}{% if example.inputs.scm %} | SCM: {{ example.inputs.scm }}{% endif %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 1: INTERACTIVE PRACTICE & LEARNING MODE -->
+    <div id="viewPractice" class="space-y-6">
+        
+        <!-- Practice Progress Card -->
+        <div class="bg-gradient-to-r from-teal-800 to-slate-900 text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-teal-300">Self-Practice Workshop</span>
+                <h2 class="text-lg font-bold">Calculate Each Step Before Revealing Solutions</h2>
+                <p class="text-xs text-slate-300 mt-0.5">Solve the steps below using IS 10262:2019 clauses. Instant feedback checks your calculation within &plusmn;0.5 units.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <span class="text-[10px] uppercase text-teal-300 block font-semibold">Solved Steps</span>
+                    <span id="scoreText" class="text-xl font-mono font-black">0 / 5</span>
+                </div>
+                <button type="button" id="btnResetPractice" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 transition">Reset</button>
+            </div>
+        </div>
+
+        <!-- Practice Steps Accordion -->
+        <div class="space-y-4">
+            
+            <!-- Step 1: Target Mean Strength -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3 transition" id="boxStep1">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">1</span>
+                        <h3 class="text-sm font-bold text-slate-800">Target Mean Strength (f'ck) &mdash; IS 10262:2019 Cl 4.2</h3>
+                    </div>
+                    <span id="badgeStep1" class="text-xs font-semibold text-slate-400">Pending</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Calculate target mean compressive strength at 28 days for <strong>{{ example.grade }}</strong> concrete. Use assumed standard deviation <em>s</em> from Table 2 and factor <em>X</em> from Clause 4.2.
+                </p>
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="inputUserFck" class="w-32 text-xs rounded-lg border border-slate-300 p-2 font-mono text-right" placeholder="e.g. 38.25" step="0.05">
+                        <span class="text-xs font-semibold text-slate-500">N/mm²</span>
+                    </div>
+                    <button type="button" class="btn-check px-3.5 py-2 rounded-lg text-xs font-bold bg-teal-700 text-white hover:bg-teal-800 transition" data-step="1">Check Step 1</button>
+                    <button type="button" class="btn-hint px-3 py-2 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition" data-step="1">💡 Show Hint</button>
+                    <button type="button" class="btn-reveal px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-step="1">👁️ Reveal Answer</button>
+                </div>
+                <div id="hintStep1" class="hidden text-xs p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900">
+                    <strong>Hint:</strong> f'ck = max(fck + 1.65 &times; s, fck + X). For {{ example.grade }}, check IS 10262 Table 2 for standard deviation <em>s</em> and factor <em>X</em>.
+                </div>
+                <div id="solutionStep1" class="hidden text-xs p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 font-mono"></div>
+            </div>
+
+            <!-- Step 2: Adopted Water-Cement Ratio -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3 transition" id="boxStep2">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">2</span>
+                        <h3 class="text-sm font-bold text-slate-800">Adopted Water-Cement Ratio (w/c or w/cm) &mdash; IS 456 Table 5</h3>
+                    </div>
+                    <span id="badgeStep2" class="text-xs font-semibold text-slate-400">Pending</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Compare the w/c ratio derived from strength curve (IS 10262 Fig. 1) against the statutory durability maximum limit for <strong>{{ example.exposure|upper }}</strong> exposure in IS 456:2000 Table 5.
+                </p>
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="inputUserWc" class="w-32 text-xs rounded-lg border border-slate-300 p-2 font-mono text-right" placeholder="e.g. 0.45" step="0.01" min="0.25" max="0.70">
+                        <span class="text-xs font-semibold text-slate-500">ratio</span>
+                    </div>
+                    <button type="button" class="btn-check px-3.5 py-2 rounded-lg text-xs font-bold bg-teal-700 text-white hover:bg-teal-800 transition" data-step="2">Check Step 2</button>
+                    <button type="button" class="btn-hint px-3 py-2 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition" data-step="2">💡 Show Hint</button>
+                    <button type="button" class="btn-reveal px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-step="2">👁️ Reveal Answer</button>
+                </div>
+                <div id="hintStep2" class="hidden text-xs p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900">
+                    <strong>Hint:</strong> IS 456 Table 5 limits max w/c to 0.55 (Mild), 0.50 (Moderate), 0.45 (Severe), 0.45 (Very Severe), 0.40 (Extreme).
+                </div>
+                <div id="solutionStep2" class="hidden text-xs p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 font-mono"></div>
+            </div>
+
+            <!-- Step 3: Mixing Water Content -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3 transition" id="boxStep3">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">3</span>
+                        <h3 class="text-sm font-bold text-slate-800">Target Water Content per m³ &mdash; IS 10262 Table 3</h3>
+                    </div>
+                    <span id="badgeStep3" class="text-xs font-semibold text-slate-400">Pending</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Start with base water for <strong>{{ example.max_size }} mm</strong> aggregate (50 mm slump). Adjust for target slump of <strong>{{ example.slump }} mm</strong> (+3% per 25 mm above 50 mm), and subtract chemical superplasticiser water reduction if used.
+                </p>
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="inputUserWater" class="w-32 text-xs rounded-lg border border-slate-300 p-2 font-mono text-right" placeholder="e.g. 165" step="1">
+                        <span class="text-xs font-semibold text-slate-500">kg/m³</span>
+                    </div>
+                    <button type="button" class="btn-check px-3.5 py-2 rounded-lg text-xs font-bold bg-teal-700 text-white hover:bg-teal-800 transition" data-step="3">Check Step 3</button>
+                    <button type="button" class="btn-hint px-3 py-2 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition" data-step="3">💡 Show Hint</button>
+                    <button type="button" class="btn-reveal px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-step="3">👁️ Reveal Answer</button>
+                </div>
+                <div id="hintStep3" class="hidden text-xs p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900">
+                    <strong>Hint:</strong> 20mm aggregate baseline is 186 kg; 10mm is 208 kg; 40mm is 165 kg. Add 3% per 25mm extra slump, then multiply by (1 - water_reduction).
+                </div>
+                <div id="solutionStep3" class="hidden text-xs p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 font-mono"></div>
+            </div>
+
+            <!-- Step 4: Total Cementitious & SCM Content -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3 transition" id="boxStep4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">4</span>
+                        <h3 class="text-sm font-bold text-slate-800">Cement & Mineral Admixture Content &mdash; IS 10262 Cl 5.2</h3>
+                    </div>
+                    <span id="badgeStep4" class="text-xs font-semibold text-slate-400">Pending</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Binder = Water / (w/c). Verify that binder meets IS 456 Table 5 minimum cement content. If SCM is used, compute the net cement and SCM split.
+                </p>
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="inputUserCement" class="w-32 text-xs rounded-lg border border-slate-300 p-2 font-mono text-right" placeholder="e.g. 350" step="1">
+                        <span class="text-xs font-semibold text-slate-500">kg Cement</span>
+                    </div>
+                    <button type="button" class="btn-check px-3.5 py-2 rounded-lg text-xs font-bold bg-teal-700 text-white hover:bg-teal-800 transition" data-step="4">Check Step 4</button>
+                    <button type="button" class="btn-hint px-3 py-2 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition" data-step="4">💡 Show Hint</button>
+                    <button type="button" class="btn-reveal px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-step="4">👁️ Reveal Answer</button>
+                </div>
+                <div id="hintStep4" class="hidden text-xs p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900">
+                    <strong>Hint:</strong> Total binder = Water / Adopted w/c. Check Table 5 minimum (300 to 360 kg). If Fly Ash is used, cementitious = binder * 1.10.
+                </div>
+                <div id="solutionStep4" class="hidden text-xs p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 font-mono"></div>
+            </div>
+
+            <!-- Step 5: Aggregate Proportions by Absolute Volume -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3 transition" id="boxStep5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">5</span>
+                        <h3 class="text-sm font-bold text-slate-800">Aggregate Proportions (SSD) &mdash; IS 10262 Cl 5.6</h3>
+                    </div>
+                    <span id="badgeStep5" class="text-xs font-semibold text-slate-400">Pending</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Volume of total aggregate = 1 - (V_cement + V_SCM + V_water + V_admixture + V_air). Calculate final masses using specific gravities.
+                </p>
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="inputUserFa" class="w-28 text-xs rounded-lg border border-slate-300 p-2 font-mono text-right" placeholder="FA kg" step="5">
+                        <span class="text-xs font-semibold text-slate-500">kg FA</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="inputUserCa" class="w-28 text-xs rounded-lg border border-slate-300 p-2 font-mono text-right" placeholder="CA kg" step="5">
+                        <span class="text-xs font-semibold text-slate-500">kg CA</span>
+                    </div>
+                    <button type="button" class="btn-check px-3.5 py-2 rounded-lg text-xs font-bold bg-teal-700 text-white hover:bg-teal-800 transition" data-step="5">Check Step 5</button>
+                    <button type="button" class="btn-hint px-3 py-2 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition" data-step="5">💡 Show Hint</button>
+                    <button type="button" class="btn-reveal px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-step="5">👁️ Reveal Answer</button>
+                </div>
+                <div id="hintStep5" class="hidden text-xs p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900">
+                    <strong>Hint:</strong> Use Table 5 for CA fraction at w/c=0.50 (e.g. 0.62 for 20mm Zone II), adjust by &plusmn;0.01 per 0.05 w/c change, and reduce 10% if pumped.
+                </div>
+                <div id="solutionStep5" class="hidden text-xs p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 font-mono"></div>
+            </div>
+
+        </div>
+
+        <!-- Practice Completion Action Card -->
+        <div id="cardCompleted" class="hidden bg-emerald-50 p-6 rounded-2xl border border-emerald-200 text-emerald-950 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">&check;</div>
+                <div>
+                    <h3 class="text-base font-bold">Great Job! You Have Mastered This Mix Design</h3>
+                    <p class="text-xs text-emerald-800">All statutory IS 10262:2019 steps have been verified against the official benchmark solution.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-3 pt-2">
+                <a href="/design" class="px-4 py-2 rounded-xl text-xs font-bold bg-teal-700 text-white hover:bg-teal-800 transition flex items-center gap-1.5">
+                    Open in Mix Design Workbench &rarr;
+                </a>
+                <button type="button" id="btnSwitchToRef" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-emerald-300 text-emerald-900 hover:bg-emerald-100 transition">
+                    View Complete Audit Sheet
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- VIEW 2: REFERENCE SOLUTION SHEET (FULL AUDIT VIEW) -->
+    <div id="viewReference" class="hidden space-y-8">
+        
+        <!-- Calculated Proportions Card -->
+        <div class="bg-white p-6 rounded-2xl border border-teal-200 shadow-sm relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-teal-700">Official Benchmark Solution (SSD)</span>
+                    <h2 class="text-2xl font-black text-slate-900 mt-0.5">{{ example.external_id }} &mdash; {{ example.grade }} Proportions</h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="window.print()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition flex items-center gap-1.5 no-print">
+                        Print / PDF
+                    </button>
+                    <div class="text-right pl-3 border-l border-slate-200">
+                        <div class="text-[10px] text-slate-400 font-semibold uppercase">Ratio by mass</div>
+                        <div class="text-lg font-mono font-bold text-slate-800">{{ example.mix_per_m3.ratio_by_mass_cementitious }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center my-4">
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="text-[10px] uppercase font-bold text-slate-400">Cement</div>
+                    <div class="text-xl font-black text-slate-900 mt-1">{{ example.mix_per_m3.cement }} <span class="text-xs font-normal text-slate-500">kg</span></div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="text-[10px] uppercase font-bold text-slate-400">Water (w/c: {{ example.mix_per_m3.w_cm }})</div>
+                    <div class="text-xl font-black text-slate-900 mt-1">{{ example.mix_per_m3.water }} <span class="text-xs font-normal text-slate-500">kg</span></div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="text-[10px] uppercase font-bold text-slate-400">Fine Aggregate (SSD)</div>
+                    <div class="text-xl font-black text-slate-900 mt-1">{{ example.mix_per_m3.fine_aggregate_ssd }} <span class="text-xs font-normal text-slate-500">kg</span></div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="text-[10px] uppercase font-bold text-slate-400">Coarse Aggregate (SSD)</div>
+                    <div class="text-xl font-black text-slate-900 mt-1">{{ example.mix_per_m3.coarse_aggregate_ssd }} <span class="text-xs font-normal text-slate-500">kg</span></div>
+                </div>
+            </div>
+
+            {% if example.mix_per_m3.scm %}
+            <div class="my-3 p-3 bg-teal-50/70 rounded-xl border border-teal-200 text-xs flex flex-wrap justify-between items-center gap-2">
+                <span class="font-bold text-teal-900">Mineral SCMs:</span>
+                <span class="text-teal-800 font-mono font-bold">
+                    {% for k, v in example.mix_per_m3.scm.items() %}
+                        {{ k }}: {{ v }} kg/m³{% if not loop.last %} + {% endif %}
+                    {% endfor %}
+                </span>
+                <span class="text-teal-900 font-bold ml-auto">Admixture: {{ example.mix_per_m3.admixture|default(0.0) }} kg/m³</span>
+            </div>
+            {% endif %}
+
+            {% if example.mix_per_m3.field_adjusted %}
+            <div class="border-t border-slate-100 pt-3 text-xs text-slate-600 flex justify-between items-center">
+                <span class="font-semibold text-slate-700">Site-Adjusted Field Batching:</span>
+                <span class="font-mono text-slate-800">
+                    Water: {{ example.mix_per_m3.field_adjusted.water }} kg | 
+                    FA: {{ example.mix_per_m3.field_adjusted.fine_aggregate }} kg | 
+                    CA: {{ example.mix_per_m3.field_adjusted.coarse_aggregate }} kg
+                </span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Step-by-Step IS 10262 Audit Log -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h2 class="text-base font-bold text-slate-900 mb-4">Worked Calculation Steps & Clause Citations</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 text-slate-600 uppercase border-y border-slate-200">
+                        <tr>
+                            <th class="py-2.5 px-3">Step</th>
+                            <th class="py-2.5 px-3">Standard Reference</th>
+                            <th class="py-2.5 px-3">Computed Value</th>
+                            <th class="py-2.5 px-3">Clause Logic</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        {% for step in example.solution_steps %}
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-2.5 px-3 font-semibold text-slate-800">{{ step.step }}</td>
+                            <td class="py-2.5 px-3 text-teal-700 font-mono font-semibold">{{ step.clause }}</td>
+                            <td class="py-2.5 px-3 font-mono font-bold">{{ step.value }}</td>
+                            <td class="py-2.5 px-3 text-slate-500">{{ step.note }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Code Verification Checks -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h2 class="text-base font-bold text-slate-900 mb-4">IS Code Boundary & Yield Checks</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                {% for check, passed in example.checks.items() %}
+                <div class="flex items-center justify-between p-2.5 rounded-lg border {% if passed %}bg-emerald-50/50 border-emerald-200 text-emerald-900{% else %}bg-red-50 border-red-200 text-red-900{% endif %}">
+                    <span class="font-mono">{{ check }}</span>
+                    <span class="font-bold">{% if passed %}PASSED &check;{% else %}FAILED &cross;{% endif %}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if not example.concrete_type or example.concrete_type == 'conventional' %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const tabPractice = document.getElementById("tabPractice");
+    const tabReference = document.getElementById("tabReference");
+    const viewPractice = document.getElementById("viewPractice");
+    const viewReference = document.getElementById("viewReference");
+    const btnSwitchToRef = document.getElementById("btnSwitchToRef");
+    const btnResetPractice = document.getElementById("btnResetPractice");
+
+    if (tabPractice && tabReference) {
+        tabPractice.addEventListener("click", () => switchMode("practice"));
+        tabReference.addEventListener("click", () => switchMode("reference"));
+    }
+    if (btnSwitchToRef) btnSwitchToRef.addEventListener("click", () => switchMode("reference"));
+
+    function switchMode(mode) {
+        if (!viewPractice || !viewReference) return;
+        if (mode === "practice") {
+            viewPractice.classList.remove("hidden");
+            viewReference.classList.add("hidden");
+            tabPractice.className = "px-4 py-2 rounded-lg bg-teal-700 text-white shadow-sm transition flex items-center gap-1.5";
+            tabReference.className = "px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+        } else {
+            viewPractice.classList.add("hidden");
+            viewReference.classList.remove("hidden");
+            tabReference.className = "px-4 py-2 rounded-lg bg-teal-700 text-white shadow-sm transition flex items-center gap-1.5";
+            tabPractice.className = "px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+        }
+    }
+
+    const solutionSteps = {{ example.solution_steps|tojson|safe }};
+    const mixResult = {{ example.mix_per_m3|tojson|safe }};
+
+    function getStepVal(namePart) {
+        if (!solutionSteps || !solutionSteps.length) return null;
+        const s = solutionSteps.find(x => x.step && x.step.toLowerCase().includes(namePart.toLowerCase()));
+        return s ? s.value : null;
+    }
+
+    const rawFck = getStepVal("target");
+    const targetFck = typeof rawFck === "number" ? rawFck : parseFloat(rawFck) || 31.6;
+    const targetWc = mixResult.w_cm || 0.45;
+    const targetWater = mixResult.water || 165;
+    const targetCement = mixResult.cement || 350;
+    const targetFA = mixResult.fine_aggregate_ssd || 700;
+    const targetCA = mixResult.coarse_aggregate_ssd || 1150;
+
+    let solvedCount = 0;
+    const solvedSet = new Set();
+
+    function updateScore() {
+        const scoreElem = document.getElementById("scoreText");
+        if (scoreElem) scoreElem.textContent = `${solvedSet.size} / 5`;
+        if (solvedSet.size >= 5) {
+            const completedCard = document.getElementById("cardCompleted");
+            if (completedCard) completedCard.classList.remove("hidden");
+        }
+    }
+
+    document.querySelectorAll(".btn-hint").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const step = btn.getAttribute("data-step");
+            const hintBox = document.getElementById(`hintStep${step}`);
+            if (hintBox) hintBox.classList.toggle("hidden");
+        });
+    });
+
+    document.querySelectorAll(".btn-reveal").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const step = btn.getAttribute("data-step");
+            revealStep(step);
+        });
+    });
+
+    document.querySelectorAll(".btn-check").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const step = btn.getAttribute("data-step");
+            checkStep(step);
+        });
+    });
+
+    function checkStep(step) {
+        if (step === "1") {
+            const val = parseFloat(document.getElementById("inputUserFck").value);
+            if (isNaN(val)) return alert("Please enter your calculated f'ck value");
+            if (Math.abs(val - targetFck) <= 1.0) {
+                markSuccess(1, `Correct! Target mean strength f'ck = ${targetFck} N/mm²`);
+            } else {
+                markError(1, `Close, but not quite. Expected around ${targetFck} N/mm². Click 'Show Hint' to review the standard deviation and factor X.`);
+            }
+        } else if (step === "2") {
+            const val = parseFloat(document.getElementById("inputUserWc").value);
+            if (isNaN(val)) return alert("Please enter your adopted w/c ratio");
+            if (Math.abs(val - targetWc) <= 0.03) {
+                markSuccess(2, `Correct! Adopted w/c = ${targetWc}`);
+            } else {
+                markError(2, `Your w/c (${val}) deviates from ${targetWc}. Check durability Table 5 limits!`);
+            }
+        } else if (step === "3") {
+            const val = parseFloat(document.getElementById("inputUserWater").value);
+            if (isNaN(val)) return alert("Please enter water content");
+            if (Math.abs(val - targetWater) <= 5.0) {
+                markSuccess(3, `Correct! Water content = ${targetWater} kg/m³`);
+            } else {
+                markError(3, `Expected ${targetWater} kg/m³. Did you adjust for slump and superplasticiser water reduction?`);
+            }
+        } else if (step === "4") {
+            const val = parseFloat(document.getElementById("inputUserCement").value);
+            if (isNaN(val)) return alert("Please enter cement mass");
+            if (Math.abs(val - targetCement) <= 15.0) {
+                markSuccess(4, `Correct! Cement mass = ${targetCement} kg/m³`);
+            } else {
+                markError(4, `Expected ${targetCement} kg/m³. Binder = Water / w-c.`);
+            }
+        } else if (step === "5") {
+            const fa = parseFloat(document.getElementById("inputUserFa").value);
+            const ca = parseFloat(document.getElementById("inputUserCa").value);
+            if (isNaN(fa) || isNaN(ca)) return alert("Please enter both FA and CA masses");
+            if (Math.abs(fa - targetFA) <= 35.0 && Math.abs(ca - targetCA) <= 45.0) {
+                markSuccess(5, `Correct! FA = ${targetFA} kg/m³, CA = ${targetCA} kg/m³`);
+            } else {
+                markError(5, `Deviates from benchmark: FA = ${targetFA} kg, CA = ${targetCA} kg. Check absolute volume fractions.`);
+            }
+        }
+    }
+
+    function markSuccess(step, message) {
+        solvedSet.add(step);
+        const badge = document.getElementById(`badgeStep${step}`);
+        if (badge) {
+            badge.textContent = "Solved \u2714";
+            badge.className = "text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200";
+        }
+        const sol = document.getElementById(`solutionStep${step}`);
+        if (sol) {
+            sol.textContent = message;
+            sol.classList.remove("hidden");
+        }
+        updateScore();
+    }
+
+    function markError(step, message) {
+        const sol = document.getElementById(`solutionStep${step}`);
+        if (sol) {
+            sol.textContent = message;
+            sol.className = "text-xs p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-sans";
+            sol.classList.remove("hidden");
+        }
+    }
+
+    function revealStep(step) {
+        if (step === "1") {
+            document.getElementById("inputUserFck").value = targetFck;
+            markSuccess(1, `Target mean strength f'ck = ${targetFck} N/mm² per IS 10262:2019 Cl 4.2`);
+        } else if (step === "2") {
+            document.getElementById("inputUserWc").value = targetWc;
+            markSuccess(2, `Adopted w/c = ${targetWc} (governed by durability / strength)`);
+        } else if (step === "3") {
+            document.getElementById("inputUserWater").value = targetWater;
+            markSuccess(3, `Water content = ${targetWater} kg/m³ per Table 3 & slump step`);
+        } else if (step === "4") {
+            document.getElementById("inputUserCement").value = targetCement;
+            markSuccess(4, `Cement = ${targetCement} kg/m³ (Binder = ${mixResult.cementitious_total || targetCement} kg)`);
+        } else if (step === "5") {
+            document.getElementById("inputUserFa").value = targetFA;
+            document.getElementById("inputUserCa").value = targetCA;
+            markSuccess(5, `FA (SSD) = ${targetFA} kg/m³, CA (SSD) = ${targetCA} kg/m³`);
+        }
+    }
+
+    if (btnResetPractice) {
+        btnResetPractice.addEventListener("click", () => {
+            solvedSet.clear();
+            document.querySelectorAll("input[id^='inputUser']").forEach(i => i.value = "");
+            document.querySelectorAll("div[id^='solutionStep']").forEach(d => d.classList.add("hidden"));
+            document.querySelectorAll("div[id^='hintStep']").forEach(d => d.classList.add("hidden"));
+            document.querySelectorAll("span[id^='badgeStep']").forEach(b => {
+                b.textContent = "Pending";
+                b.className = "text-xs font-semibold text-slate-400";
+            });
+            const comp = document.getElementById("cardCompleted");
+            if (comp) comp.classList.add("hidden");
+            updateScore();
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

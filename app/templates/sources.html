@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Research Literature Sources & Citations — ConcreteMix AI{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <div>
+        <div class="flex items-center gap-2 text-xs font-semibold text-teal-700 mb-2">
+            <a href="/" class="hover:underline">Home</a> &gt; <span>Research Sources</span>
+        </div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Research Literature Sources & Citations</h1>
+        <p class="text-sm text-slate-600 mt-2">
+            Published standards, technical committee reports, and landmark papers anchoring the 301 reference mixes across 12 special concrete types.
+        </p>
+    </div>
+
+    <!-- Mandatory Literature Notice -->
+    <div class="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 text-amber-950 flex items-start gap-3.5 shadow-sm">
+        <svg class="w-6 h-6 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div class="space-y-1">
+            <h3 class="text-sm font-bold text-amber-900 uppercase tracking-wide">Literature-Anchored Reference Policy</h3>
+            <p class="text-xs text-amber-800 leading-relaxed font-medium">
+                Every record in the special concrete dataset carries its own peer-reviewed literature citations. Proportions are representative baseline mixes (typical dosages, water-binder ratios, and absolute-volume closure at 1.0 m³), not direct copies of any single laboratory. <strong>Trial batching and laboratory verification are mandatory prior to any structural deployment.</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Primary Citations Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 bg-slate-50">
+            <h2 class="text-base font-bold text-slate-900">Benchmark References by Special Concrete Type</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Click any concrete type to explore its comprehensive engineering mix design guide.</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs divide-y divide-slate-200">
+                <thead class="bg-slate-100/70 text-slate-600 uppercase font-bold text-[11px]">
+                    <tr>
+                        <th class="py-3 px-4 w-44">Concrete Type</th>
+                        <th class="py-3 px-4">Primary References & Landmark Standards</th>
+                        <th class="py-3 px-4 w-28 text-center">Guide</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">Geopolymer</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            Hardjito & Rangan (2005) <em>Development and properties of low-calcium fly ash-based geopolymer concrete</em>, Curtin Univ. Research Report GC1; Rangan (2008); Davidovits (2008) <em>Geopolymer Chemistry and Applications</em>; Provis & van Deventer (eds.) RILEM TC 224-AAM (2014)
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/geopolymer-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">Self-Healing</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            De Belie et al. (2018) <em>Adv. Mater. Interfaces</em> 5(17); Jonkers et al. (2010) <em>Ecol. Eng.</em> 36; Ferrara et al. (2018) <em>Constr. Build. Mater.</em> 167; Snoeck & De Belie (2015); RILEM TC 221-SHC
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/self-healing-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">Self-Sensing</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            Chung (2000, 2002); Han, Ding, Ou et al. (2015) <em>Sensors</em> 15; Ou & Han (2009); D'Alessandro et al. (2016)
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/self-sensing-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">Self-Compacting (SCC)</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            EFNARC (2005) <em>SCC Specification & Guidelines</em>; Okamura & Ouchi (2003) <em>J. Adv. Concr. Technol.</em> 1(1); ACI 237R-07; Nan Su et al. (2001) <em>Cem. Concr. Res.</em> 31
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/self-compacting-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">3D-Printing (3DCP)</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            Le et al. (2012) <em>Mater. Struct.</em> 45 / <em>Cem. Concr. Res.</em> 42; Buswell et al. (2018) <em>Cem. Concr. Res.</em> 112; Panda & Tan (2018); Paul et al. (2018)
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/3d-printing-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">UHPC</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            Richard & Cheyrezy (1995) <em>Cem. Concr. Res.</em> 25; Graybeal (2006) FHWA-HRT-06-103; Yu, Spiesz & Brouwers (2014) <em>Cem. Concr. Compos.</em> 55; AFGC/SETRA (2013); fib (2013) UHPFRC
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/uhpc-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">ECC / Bendable</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            Li (2003) <em>J. Adv. Concr. Technol.</em> 1(3); Li et al. (2001) <em>ACI Mater. J.</em>; Yang et al. (2007) <em>ACI Mater. J.</em> 104; Wang & Li (2007)
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/ecc-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">Lightweight</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            ACI 213R-14; ACI 211.2; ACI 523.3R-14 (cellular foam); Chandra & Berntsson (2002); Ramamurthy et al. (2009) <em>Cem. Concr. Compos.</em> 31; Narayanan & Ramamurthy (2000)
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/lightweight-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">CO2-Injected</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            Monkman, MacDonald, Hooton & Sandberg (2016) <em>Cem. Concr. Compos.</em> 74; Monkman & Shao (2006/2010); Shi et al. (2012); CarbonCure technical documentation
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/co2-injected-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">Sea-Sand / Seawater</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            Xiao, Qiang, Nanni & Zhang (2017) <em>Constr. Build. Mater.</em> 155; Teng et al. (2018, PolyU); Dhondy et al. (2019); IS 456:2000 Cl. 8.2.5 & Table 7; IS 383:2016
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/sea-sand-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">Pervious Concrete</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            ACI 522R-10; Tennis, Leming & Akers (2004) PCA EB302; NRMCA guide; Neithalath et al. (2010) <em>Cem. Concr. Compos.</em> 32
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/pervious-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-teal-900">Fiber-Reinforced</td>
+                        <td class="py-3 px-4 leading-relaxed">
+                            ACI 544.1R-96; ACI 544.4R; RILEM TC 162-TDF (2003); fib Model Code 2010; Bentur & Mindess (2007)
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="/learn/fiber-reinforced-mix-design" class="text-teal-700 font-bold hover:underline">Learn &rarr;</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Technical Parameters & Generator Notes -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-base font-bold text-slate-900">Generator Baseline Constants & Formulation Logic</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-700">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                <span class="font-bold text-slate-900 block text-xs">Specific Gravities (SG) for Absolute Volume Closure:</span>
+                <ul class="list-disc pl-4 space-y-1 font-mono text-[11px] text-slate-600">
+                    <li>Cement (OPC): 3.15</li>
+                    <li>Fly Ash (FA): 2.20 | GGBS: 2.90 | Silica Fume: 2.20</li>
+                    <li>Fine Aggregate (Sand): 2.65 | Coarse Aggregate: 2.70</li>
+                    <li>Water: 1.00 | Superplasticiser (PCE): 1.08</li>
+                    <li>Steel Fiber: 7.85 | PVA Fiber: 1.30 | Basalt Fiber: 2.70 | PP: 0.91</li>
+                </ul>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                <span class="font-bold text-slate-900 block text-xs">Geopolymer Activator Chemistry:</span>
+                <ul class="list-disc pl-4 space-y-1 font-mono text-[11px] text-slate-600">
+                    <li>NaOH solids per kg solution: 8M=262g, 10M=314g, 12M=361g, 14M=404g, 16M=444g</li>
+                    <li>Na2SiO3 Composition: SiO2 29.4%, Na2O 14.7%, H2O 55.9%</li>
+                    <li>Alkaline liquid to binder ratio: 0.30 – 0.50</li>
+                    <li>Na2SiO3 / NaOH mass ratio: 1.5 – 3.0</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

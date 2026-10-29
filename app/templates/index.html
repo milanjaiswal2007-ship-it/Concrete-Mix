@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}ConcreteMix AI — From Requirements to Code-Verified Concrete Proportions{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden pt-12 pb-20 bg-gradient-to-b from-white via-[#FAFAF8] to-[#FAFAF8] border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-200 mb-6">
+                <span class="w-2 h-2 rounded-full bg-teal-600 animate-pulse"></span>
+                Two-Tier Architecture: IS 10262:2019 + 12 Special Concretes Engine
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                From design requirements to <span class="text-teal-700">code-verified</span> concrete mix proportions.
+            </h1>
+            <p class="mt-6 text-lg text-slate-600 leading-relaxed">
+                Enter your structural stipulations in plain English or structured parameters. ConcreteMix AI recognizes <strong>conventional OPC/PPC/PSC mixes</strong> (IS 10262) and <strong>12 advanced special concrete types</strong> across 401 solved benchmark problems.
+            </p>
+            <div class="mt-10 flex flex-wrap justify-center gap-4">
+                <a href="/design" class="px-7 py-3.5 rounded-xl font-semibold text-white bg-teal-700 hover:bg-teal-800 shadow-md shadow-teal-700/10 transition text-base">
+                    Design a Mix Now &rarr;
+                </a>
+                <a href="/library" class="px-7 py-3.5 rounded-xl font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 shadow-sm transition text-base">
+                    Explore 401 Solved Mixes Library
+                </a>
+                <a href="/sources" class="px-7 py-3.5 rounded-xl font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 shadow-sm transition text-base">
+                    Research Sources & Citations
+                </a>
+            </div>
+            <div class="mt-8 flex justify-center items-center gap-6 text-xs text-slate-500 font-medium">
+                <span>&bull; Zero LLM Hallucinations</span>
+                <span>&bull; 100% Deterministic Engine</span>
+                <span>&bull; Verified Absolute Volume Checks</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Banner -->
+<section class="py-10 bg-slate-900 text-white border-y border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div class="text-3xl font-black text-teal-400">401</div>
+                <div class="text-xs text-slate-300 mt-1 uppercase font-semibold">Total Solved Records</div>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div class="text-3xl font-black text-emerald-400">100</div>
+                <div class="text-xs text-slate-300 mt-1 uppercase font-semibold">IS 10262:2019 Problems</div>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div class="text-3xl font-black text-cyan-400">301</div>
+                <div class="text-xs text-slate-300 mt-1 uppercase font-semibold">Literature Reference Mixes</div>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div class="text-3xl font-black text-amber-400">12</div>
+                <div class="text-xs text-slate-300 mt-1 uppercase font-semibold">Special Concrete Types</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Beyond OPC/PPC: 12 Advanced Special Concrete Types -->
+<section class="py-20 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-14">
+            <span class="text-xs font-bold uppercase tracking-wider text-teal-700">Advanced Material Science</span>
+            <h2 class="text-3xl font-black text-slate-900 mt-2">Beyond OPC: 12 Special Concrete Types</h2>
+            <p class="text-sm text-slate-600 mt-3 leading-relaxed">
+                Conventional IS 10262 empirical curves only apply to Portland cement binders. ConcreteMix AI serves 301 peer-reviewed literature-anchored reference mixes for advanced composites with automated physical volume closure.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded">Alkali-Activated</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Geopolymer Concrete</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Zero-cement clinker replacement using fly ash / GGBS precursors and 8–16M NaOH + Na2SiO3 activators.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/geopolymer-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=geopolymer" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Bio & Crystalline</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Self-Healing Concrete</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Autonomous crack closure via bacterial spores (Bacillus subtilis), crystalline waterproofing, and microcapsules.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/self-healing-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=self-healing" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">Piezoresistive</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Self-Sensing Concrete</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Smart cementitious composites embedded with carbon nanotubes (CNT), graphene, and nickel powder for structural health monitoring.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/self-sensing-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=self-sensing" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-cyan-800 bg-cyan-50 border border-cyan-200 px-2 py-0.5 rounded">EFNARC Flowable</span>
+                    <span class="text-[10px] text-slate-400 font-mono">26 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Self-Compacting (SCC)</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">High flowability (slump flow 650–800 mm) with powder content 450–650 kg/m³ and V-funnel viscosity control without vibration.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/self-compacting-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=self-compacting" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-indigo-800 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">Additive 3DCP</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">3D-Printing Concrete</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Automated layer extrusion with fine aggregates (&le; 2mm), thixotropy modifiers, high early buildability, and zero formwork.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/3d-printing-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=3d-printing" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-purple-800 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded">150–200 MPa</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Ultra-High Performance (UHPC)</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Ultra-dense particle packing, w/b &le; 0.22, 15–30% silica fume, fine sand (&le; 0.6mm), and 2% micro steel fibers.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/uhpc-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=uhpc" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-rose-800 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">Bendable Concrete</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">ECC / SHCC</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Engineered Cementitious Composites exhibiting 3–5% tensile strain capacity with PVA micro-fibers and micro-crack distribution.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/ecc-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=ecc" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">LECA & Foam</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Lightweight Concrete</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Density 600–1800 kg/m³ using expanded clay LECA aggregate or cellular pre-formed foaming agents for thermal insulation.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/lightweight-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=lightweight" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Carbon Sequestration</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">CO2-Injected Concrete</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Liquid CO2 mineralization during batching (CarbonCure) or accelerated carbonation curing of precast calcium silicate elements.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/co2-injected-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=co2-injected" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">Marine Dredged</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Sea-Sand & Seawater</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Direct marine sand and seawater batching paired strictly with non-corrosive FRP (GFRP/BFRP) reinforcement.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/sea-sand-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=sea-sand" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded">Drainage Pavement</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Pervious Concrete</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">No-fines porous concrete pavement with 15–25% interconnected void ratio and high hydraulic drainage percolation.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/pervious-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=pervious" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-[#FAFAF8] border border-slate-200 hover:border-teal-300 hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-orange-800 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded">FRC / SFRC</span>
+                    <span class="text-[10px] text-slate-400 font-mono">25 Mixes</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Fiber-Reinforced Concrete</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Industrial floor and tunnel lining crack control using hooked-end steel, synthetic macro, glass, or basalt fibers.</p>
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200/60 text-xs">
+                    <a href="/learn/fiber-reinforced-mix-design" class="text-teal-700 font-semibold hover:underline">Learn Guide &rarr;</a>
+                    <a href="/library?type=fiber-reinforced" class="text-slate-500 hover:text-slate-900">View Mixes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4-Step Engineering Workflow -->
+<section class="py-20 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-teal-700">Transparent Methodology</h2>
+            <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900">How ConcreteMix AI Works</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="p-6 rounded-2xl bg-[#FAFAF8] border border-slate-200 relative">
+                <div class="text-xs font-bold text-teal-700 mb-2">01. DESCRIBE</div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">State the Problem</h3>
+                <p class="text-sm text-slate-600">Provide natural-language specs (e.g. M30 RCC column or 12M NaOH geopolymer) or pick from 12 concrete types.</p>
+            </div>
+            <div class="p-6 rounded-2xl bg-[#FAFAF8] border border-slate-200 relative">
+                <div class="text-xs font-bold text-teal-700 mb-2">02. DETECT & ROUTE</div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Keyword Classification</h3>
+                <p class="text-sm text-slate-600">Scores 1,200+ multi-word keywords to distinguish conventional IS 10262 jobs from advanced composite research routes.</p>
+            </div>
+            <div class="p-6 rounded-2xl bg-[#FAFAF8] border border-slate-200 relative">
+                <div class="text-xs font-bold text-teal-700 mb-2">03. RETRIEVE</div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Hybrid Evidence RAG</h3>
+                <p class="text-sm text-slate-600">Indexes IS code clauses, standards, and finds closest matching worked benchmark problem from the 401 dataset.</p>
+            </div>
+            <div class="p-6 rounded-2xl bg-[#FAFAF8] border border-slate-200 relative">
+                <div class="text-xs font-bold text-teal-700 mb-2">04. PROPORTION</div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Verified Yield Closure</h3>
+                <p class="text-sm text-slate-600">Computes batching schedule with absolute volume closure (&Sigma;V = 1.0 m³), parameter clamping, and statutory rule checks.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to action -->
+<section class="py-16 bg-teal-800 text-white text-center">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-extrabold tracking-tight">Ready to calculate your mix design?</h2>
+        <p class="mt-4 text-teal-100 max-w-xl mx-auto text-base">
+            Try our interactive mix workbench with step-by-step clause traceability, yield validation, and literature reference proposals.
+        </p>
+        <div class="mt-8 flex justify-center gap-4">
+            <a href="/design" class="px-8 py-3.5 rounded-xl font-semibold bg-white text-teal-900 hover:bg-teal-50 shadow-lg transition">
+                Open Mix Design Workbench
+            </a>
+            <a href="/library" class="px-8 py-3.5 rounded-xl font-semibold bg-teal-900 text-white hover:bg-teal-950 border border-teal-700 shadow-lg transition">
+                Browse 401 Mix Problems
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

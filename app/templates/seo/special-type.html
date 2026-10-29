@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}{{ type_meta.name }} Mix Design Guide & Reference Proportions — ConcreteMix AI{% endblock %}
+
+{% block head %}
+<!-- JSON-LD Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "{{ type_meta.name }} Mix Design Guide & Literature Proportions",
+  "description": "{{ type_meta.description }}",
+  "articleBody": "{{ type_meta.definition }}",
+  "keywords": "{{ type_keywords[:10]|join(', ') }}",
+  "author": {
+    "@type": "Organization",
+    "name": "ConcreteMix AI"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    
+    <!-- Breadcrumb & Header -->
+    <div class="border-b border-slate-200 pb-6">
+        <div class="flex items-center gap-2 text-xs text-slate-500 mb-2">
+            <a href="/" class="hover:text-teal-700">Home</a> &rsaquo;
+            <a href="/library" class="hover:text-teal-700">Library</a> &rsaquo;
+            <span class="text-slate-700 font-semibold">{{ type_meta.name }}</span>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-800 bg-teal-50 border border-teal-200 px-3 py-1 rounded-lg">
+            Special Concrete Engineering Guide
+        </span>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-3">{{ type_meta.name }} Proportioning & Reference Guide</h1>
+        <p class="text-sm text-slate-600 mt-2 max-w-3xl leading-relaxed">
+            {{ type_meta.definition }}
+        </p>
+    </div>
+
+    <!-- Mandatory Literature Disclaimer Banner -->
+    <div class="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-3">
+        <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <div>
+            <span class="font-bold uppercase tracking-wide">Literature Reference-Based Specification:</span>
+            <p class="mt-0.5 leading-relaxed">
+                Reference-based mix from published literature &mdash; not an IS 10262 calculation. IS 10262 does not govern {{ type_meta.name|lower }}. Trial mixes, compatibility testing, and full lab verification are mandatory before site batching.
+            </p>
+        </div>
+    </div>
+
+    <!-- 1. Typical Benchmark Mix Proportions Table -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <div>
+                <h2 class="text-base font-bold text-slate-900">1. Typical Literature Reference Mixes (1 m³)</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Anchored on peer-reviewed research papers and closed on absolute volume continuity.</p>
+            </div>
+            <a href="/library?concrete_type={{ type_slug }}" class="text-xs text-teal-700 hover:underline font-semibold">
+                View all {{ type_meta.count }} mixes in Library &rarr;
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+                <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                    <tr>
+                        <th class="p-3">Mix ID</th>
+                        <th class="p-3">Indicative 28d Strength</th>
+                        <th class="p-3">Key Binder / Constituents</th>
+                        <th class="p-3">Curing Regime</th>
+                        <th class="p-3">Reference Citation</th>
+                        <th class="p-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                    {% for m in sample_mixes %}
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="p-3 font-mono font-bold text-teal-800">{{ m.external_id }}</td>
+                        <td class="p-3 font-semibold text-slate-900">
+                            {% if m.strength_lo and m.strength_hi %}
+                                {{ m.strength_lo|round(0)|int }} &ndash; {{ m.strength_hi|round(0)|int }} MPa
+                            {% else %}
+                                {{ m.grade }}
+                            {% endif %}
+                        </td>
+                        <td class="p-3 text-slate-700">
+                            {% for comp, val in m.mix_per_m3.items() %}
+                                {% if comp.endswith('_kg') and val > 0 %}
+                                    <span class="inline-block bg-slate-100 px-1.5 py-0.5 rounded text-[11px] font-mono mr-1 mb-1">
+                                        {{ comp.replace('_kg','').replace('_',' ')|title }}: {{ val|round(0)|int }} kg
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="p-3 text-slate-600">{{ m.curing|default('Standard') }}</td>
+                        <td class="p-3 text-slate-500 italic max-w-xs truncate" title="{{ m.source }}">{{ m.source }}</td>
+                        <td class="p-3 text-right">
+                            <a href="/examples/{{ m.external_id }}" class="text-xs font-semibold text-teal-700 hover:underline">
+                                Inspect &rarr;
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 2. Core Natural-Language Recognition Keywords -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <h2 class="text-base font-bold text-slate-900">2. Recognized Natural-Language Keywords</h2>
+        <p class="text-xs text-slate-500">
+            Our deterministic parser immediately classifies your prompt as <strong>{{ type_meta.name }}</strong> whenever any of the following phrases appear:
+        </p>
+        <div class="flex flex-wrap gap-2 pt-2">
+            {% for kw in type_keywords %}
+            <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200 font-mono">
+                {{ kw }}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 3. Primary Standards & Literature References -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <h2 class="text-base font-bold text-slate-900">3. Primary Codes & Literature Citations</h2>
+        <ul class="space-y-2 text-xs text-slate-700 list-disc pl-5">
+            {% for src in type_meta.sources %}
+            <li class="leading-relaxed">{{ src }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- 4. Frequently Asked Questions (FAQ) -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-base font-bold text-slate-900">4. Frequently Asked Questions (FAQ)</h2>
+        <div class="space-y-3 text-xs leading-relaxed text-slate-700">
+            <div class="border border-slate-200 p-4 rounded-xl">
+                <h3 class="font-bold text-slate-900 text-sm mb-1">Why is {{ type_meta.name }} not calculated directly via IS 10262:2019?</h3>
+                <p>
+                    Bureau of Indian Standards IS 10262:2019 governs conventional hydraulic Portland cements (OPC 33/43/53, PPC, PSC) using established water-cement strength curves (Clause 5) and standard coarse aggregate grading tables. Non-conventional binders, chemical activation, internal polymerization, microfibres, and cellular foaming involve completely different rheological and chemical mechanisms not covered by IS 10262. ConcreteMix AI anchors proposals on peer-reviewed literature and verifies physical volume continuity.
+                </p>
+            </div>
+            <div class="border border-slate-200 p-4 rounded-xl">
+                <h3 class="font-bold text-slate-900 text-sm mb-1">What mandatory lab trials must be conducted before batching?</h3>
+                <p>
+                    Field deployment mandates trial mixes to establish: (1) Setting time and workability retention, (2) Compatibility between chemical admixtures and local precursors, (3) 7-day, 28-day, and 56-day compressive and flexural strength gain, and (4) Durability indicators (drying shrinkage, rapid chloride permeability, and carbonation resistance).
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="p-6 bg-gradient-to-r from-teal-800 to-slate-900 rounded-2xl text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h3 class="text-lg font-bold">Design {{ type_meta.name }} on the Workbench</h3>
+            <p class="text-xs text-slate-300 mt-0.5">Customize molarity, fibre dosage, target strength, and curing regime with instant volume checks.</p>
+        </div>
+        <a href="/design" class="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 transition shrink-0 shadow-md">
+            Open Mix Design Workbench &rarr;
+        </a>
+    </div>
+
+</div>
+{% endblock %}

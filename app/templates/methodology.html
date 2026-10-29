@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Technical Methodology — ConcreteMix AI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Technical Calculation Methodology</h1>
+        <p class="text-sm text-slate-500 mt-2">Engineering principles, deterministic algorithms, and IS code boundary rules powering ConcreteMix AI.</p>
+    </div>
+
+    <!-- Section 1: Two-Tier Architecture -->
+    <section class="bg-white p-8 rounded-2xl border border-teal-200 shadow-sm space-y-4">
+        <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded text-xs font-bold bg-teal-100 text-teal-800">System Architecture</span>
+            <span class="text-xs text-slate-400 font-mono">Tier 1 & Tier 2</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">1. Two-Tier Proportioning Architecture</h2>
+        <p class="text-sm text-slate-600 leading-relaxed">
+            ConcreteMix AI implements a rigorous dual-engine design to separate statutory codal calculations from advanced composite research formulations:
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-xs font-bold text-teal-800 uppercase block">Tier 1 &mdash; IS 10262:2019 Engine</span>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    100% deterministic mathematical execution of <strong>IS 10262:2019</strong> and <strong>IS 456:2000 (Table 5)</strong> for conventional OPC, PPC, and PSC with mineral admixtures (Fly Ash, GGBS, Silica Fume). Computes exact water-cement curves, coarse aggregate fractions, and absolute volume yields.
+                </p>
+            </div>
+            <div class="p-4 rounded-xl bg-amber-50/50 border border-amber-200 space-y-2">
+                <span class="text-xs font-bold text-amber-900 uppercase block">Tier 2 &mdash; Literature-Anchored Engine</span>
+                <p class="text-xs text-amber-900 leading-relaxed">
+                    Literature-anchored reference proposal engine for <strong>12 special concrete types</strong> (301 benchmark mixes). Uses multi-dimensional nearest-neighbor retrieval, absolute volume closure, and parameter clamping against published literature.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Why IS 10262 Does NOT Cover Geopolymers / UHPC / ECC -->
+    <section class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-xl font-bold text-slate-900">2. Why IS 10262 Does Not Apply to Special Concretes</h2>
+        <p class="text-sm text-slate-600 leading-relaxed">
+            A frequent misconception in civil engineering is attempting to force special concrete mixes through the empirical tables of IS 10262. Indian Standard IS 10262:2019 explicitly relies on empirical assumptions that break down for advanced materials:
+        </p>
+        <div class="space-y-3 text-xs text-slate-700">
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <strong class="text-slate-900">Geopolymer Concrete:</strong> Involves alkali-activation (aluminosilicate polymerisation) rather than cement clinker hydration ($C_3S, C_2S$). The concept of a standard "water-cement ratio" does not govern compressive strength; instead, compressive strength is governed by alkaline liquid-to-binder ratio, $Na_2SiO_3 / NaOH$ mass ratio, and sodium hydroxide molarity (8–16M).
+            </div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <strong class="text-slate-900">Ultra-High Performance Concrete (UHPC):</strong> Discards coarse aggregates entirely ($D_{max} \le 0.6$ mm) and operates at extreme water-binder ratios ($w/b \le 0.22$) with 15–30% silica fume and 2% micro steel fibers. IS 10262 aggregate proportioning curves cannot resolve this particle packing regime.
+            </div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <strong class="text-slate-900">Engineered Cementitious Composites (ECC):</strong> Micromechanics-designed composite exhibiting 3–5% tensile ductility through steady-state crack bridging with PVA fibers and high fly ash/cement ratios (FA/C 1.5–2.5). Compressive strength is secondary to strain-hardening tensile capacity.
+            </div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <strong class="text-slate-900">Statutory Notice:</strong> Special concrete results are served strictly as literature reference-based proposals carrying the mandatory notice: <em>"Reference-based mix from published literature &mdash; not an IS 10262 calculation. Trial mixes and lab verification are mandatory."</em>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Target Mean Compressive Strength -->
+    <section class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-xl font-bold text-slate-900">3. Target Mean Compressive Strength (IS 10262 Cl. 4.2)</h2>
+        <p class="text-sm text-slate-600 leading-relaxed">
+            For conventional concrete, the target mean compressive strength at 28 days (\(f'_{ck}\)) is governed by:
+        </p>
+        <div class="p-4 bg-slate-50 rounded-xl font-mono text-xs text-slate-800 border border-slate-200">
+            f'ck = max( fck + 1.65 &times; s,  fck + X )
+        </div>
+        <p class="text-xs text-slate-500">
+            Where <em>s</em> is the assumed standard deviation (3.5 for M10-M15, 4.0 for M20-M25, 5.0 for M30-M60) from Table 2, and <em>X</em> is the addition factor based on concrete grade (5.0, 5.5, 6.5, or 8.0 N/mm²).
+        </p>
+    </section>
+
+    <!-- Section 4: Selection of Water-Cement Ratio & Durability -->
+    <section class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-xl font-bold text-slate-900">4. Selection of Water-Cement Ratio and Durability Bounds</h2>
+        <p class="text-sm text-slate-600 leading-relaxed">
+            The initial w/c ratio is obtained from 28-day strength curves (IS 10262 Fig. 1) and checked against the maximum permissible durability limit in <strong>IS 456:2000 Table 5</strong> for the specified exposure condition (Mild, Moderate, Severe, Very Severe, Extreme). <strong>The lower (stricter) value is adopted.</strong>
+        </p>
+    </section>
+
+    <!-- Section 5: Absolute Volume Method & 100% Volume Yield Check -->
+    <section class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-xl font-bold text-slate-900">5. Absolute Volume Method & Physical Volume Closure</h2>
+        <p class="text-sm text-slate-600 leading-relaxed">
+            Every cubic metre (1.0 m³) of compacted concrete in both Tier 1 and Tier 2 strictly satisfies the physical absolute volume closure equation:
+        </p>
+        <div class="p-4 bg-slate-50 rounded-xl font-mono text-xs text-slate-800 border border-slate-200">
+            &Sigma; (Mass_i / (SG_i &times; 1000)) + V_air = 1.000 m³ (&plusmn;0.02 m³)
+        </div>
+        <p class="text-xs text-slate-500">
+            Standard component specific gravities (SG): Cement 3.15, Fly Ash 2.20, GGBS 2.90, Silica Fume 2.20, Sand 2.65, Coarse Aggregate 2.70, Water 1.00, Superplasticiser 1.08, Steel Fiber 7.85, PVA Fiber 1.30.
+        </p>
+    </section>
+
+    <!-- Section 6: Quality Audit & Statutory Rule Checks -->
+    <section class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-xl font-bold text-slate-900">6. Rule Checks & Clamping Safeguards</h2>
+        <p class="text-sm text-slate-600 leading-relaxed">
+            Every output undergoes automated engineering checks before presentation:
+        </p>
+        <ul class="list-disc pl-5 text-xs text-slate-600 space-y-1.5">
+            <li><strong>Parameter Clamping:</strong> Input parameters outside published literature boundaries trigger an explicit warning (e.g. molarity &gt; 16M or UHPC w/b &gt; 0.22) and clamp to safe extrema.</li>
+            <li><strong>SCC Rules:</strong> Powder content verified between 450–650 kg/m³ and coarse aggregate volume share between 28–35%.</li>
+            <li><strong>Sea-Sand Durability:</strong> Strict chloride threshold check against IS 456 Table 7 ($0.6$ kg/m³ for plain concrete; zero permitted for prestressed/mild steel without FRP).</li>
+        </ul>
+    </section>
+</div>
+{% endblock %}

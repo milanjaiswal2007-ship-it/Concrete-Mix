@@ -1,0 +1,584 @@
+{% extends "base.html" %}
+
+{% block title %}Special Concrete Mix Workbench — ConcreteMix AI{% endblock %}
+
+{% block head_extra %}
+<script>
+    // Pass Python backend TYPE_SCHEMAS dictionary to front-end window
+    window.TYPE_SCHEMAS = {{ type_schemas | tojson }};
+</script>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Top Cross-Navigation Banner -->
+    <div class="p-4 rounded-2xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-teal-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+                IS
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-teal-950 uppercase tracking-wide">Looking for Conventional Concrete (IS 10262:2019)?</h4>
+                <p class="text-xs text-teal-800">Use the natural-language statement solver for OPC 33/43/53, PPC (IS 1489), and PSC (IS 455).</p>
+            </div>
+        </div>
+        <a href="/design" class="px-4 py-2 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 shadow-sm transition inline-flex items-center gap-1.5 whitespace-nowrap">
+            Open Conventional Mix (OPC/PPC/PSC) &rarr;
+        </a>
+    </div>
+
+    <!-- Header Section -->
+    <div class="space-y-1">
+        <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-100 text-teal-900 border border-teal-300">
+                Literature-Anchored Engine
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                570 Benchmark Database
+            </span>
+        </div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight" id="specialPageTitle">
+            Special Concrete Mix Workbench
+        </h1>
+        <p class="text-sm text-slate-500 max-w-3xl leading-relaxed" id="specialPageSubtitle">
+            Direct parameter-driven proportioning for Geopolymer (Alkali-Activated) concrete and 11 high-performance special concrete types anchored on published literature.
+        </p>
+    </div>
+
+    <!-- Main Grid: Left Config Panel (2 cols) & Right Results Panel (3 cols) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- ══════════════ LEFT COLUMN: CONFIGURATION ══════════════ -->
+        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+            
+            <!-- STEP 1: Concrete Type Selector -->
+            <div>
+                <label for="selectSpecialType" class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center justify-between mb-2">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">1</span>
+                        <span>Select Special Concrete Type</span>
+                    </span>
+                    <span class="text-[10px] text-teal-700 font-bold uppercase tracking-wider" id="activeTypeCount">12 Types Available</span>
+                </label>
+                <select id="selectSpecialType" class="w-full text-xs font-semibold rounded-xl border border-slate-300 p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-600 transition">
+                    <option value="geopolymer" selected>Geopolymer Concrete (Alkali-Activated — 195 Literature Mixes)</option>
+                    <option value="self-compacting">Self-Compacting Concrete (SCC — EFNARC)</option>
+                    <option value="uhpc">Ultra-High Performance Concrete (UHPC)</option>
+                    <option value="fiber-reinforced">Fibre-Reinforced Concrete (FRC)</option>
+                    <option value="self-healing">Self-Healing Concrete (Bio/Chemical)</option>
+                    <option value="3d-printing">3D Printable Concrete (3DCP)</option>
+                    <option value="ecc">Engineered Cementitious Composites (Bendable ECC)</option>
+                    <option value="lightweight">Lightweight / Cellular Concrete (LECA/Foam)</option>
+                    <option value="co2-injected">CO₂-Injected / Mineralised Concrete</option>
+                    <option value="sea-sand">Sea-Sand & Seawater Concrete</option>
+                    <option value="pervious">Pervious / Porous Concrete</option>
+                    <option value="self-sensing">Self-Sensing / Smart Concrete (Piezoresistive)</option>
+                </select>
+            </div>
+
+            <!-- STEP 2: Parameters Form -->
+            <div class="border-t border-slate-100 pt-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">2</span>
+                        <span id="parametersHeaderTitle">Geopolymer Parameters</span>
+                    </h3>
+                    <span class="text-[11px] text-slate-400 font-mono" id="fieldCountBadge">13 Parameters</span>
+                </div>
+
+                <!-- Dynamically rendered parameter fields container -->
+                <div id="dynamicParametersContainer" class="space-y-4">
+                    <!-- Populated dynamically based on selected type schema -->
+                </div>
+            </div>
+
+            <!-- STEP 3: Action Button -->
+            <div class="border-t border-slate-100 pt-4">
+                <button type="button" id="btnCalculate" class="w-full py-3.5 px-4 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group">
+                    <span id="btnText">Generate Geopolymer Mix Proposal</span>
+                    <svg id="btnSpinner" class="hidden animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+                <p class="text-[11px] text-slate-400 text-center mt-2">
+                    Proportions are closed to 1.000 m³ absolute volume with criteria checks.
+                </p>
+            </div>
+        </div>
+
+        <!-- ══════════════ RIGHT COLUMN: RESULTS & PROPOSAL ══════════════ -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Error Alert -->
+            <div id="errorBox" class="hidden p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs">
+                <div class="font-bold flex items-center gap-1.5 mb-1">
+                    <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Calculation Error
+                </div>
+                <div id="errorDetails" class="font-mono"></div>
+            </div>
+
+            <!-- Placeholder State -->
+            <div id="resultsPlaceholder" class="bg-white p-12 rounded-2xl border border-dashed border-slate-300 text-center space-y-2">
+                <div class="w-12 h-12 rounded-full bg-teal-50 text-teal-600 mx-auto flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <h3 class="text-base font-bold text-slate-700" id="placeholderTitle">Geopolymer Engine Standing By</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed" id="placeholderDesc">
+                    Configure your parameters on the left and click "Generate Mix Proposal" to calculate constituent proportions, chemical ratios, and retrieve benchmark literature mixes.
+                </p>
+            </div>
+
+            <!-- Calculated Results Container -->
+            <div id="resultsContainer" class="hidden space-y-6">
+                
+                <!-- 1. Proposed Mix Card (kg/m3 table) -->
+                <div class="bg-white p-6 rounded-2xl border border-teal-200 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-2xl font-black text-slate-900" id="specialTypeTitle">Mix Proposal</h2>
+                                <span id="specialVerificationBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                    Literature Verified
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Base Reference Mix ID: <span id="specialBaseId" class="font-mono font-bold text-teal-800">REF</span></p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] uppercase text-slate-400 font-bold block">Indicative 28d Strength</span>
+                            <span class="text-xl font-mono font-black text-teal-800" id="specialStrengthRange">25 &ndash; 35 MPa</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Proposed Mix Proportions (Absolute Volume Closed = 1.000 m³)</h3>
+                        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Component Constituent</th>
+                                        <th class="py-2.5 px-3 text-right">Batch Mass (kg/m³)</th>
+                                        <th class="py-2.5 px-3">Physical Specification</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="specialQuantitiesTable" class="divide-y divide-slate-100 text-slate-800 bg-white"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed" id="specialDisclaimerText">
+                        Reference-based mix proposal. Trial mixes and lab verification are mandatory prior to structural deployment.
+                    </div>
+                </div>
+
+                <!-- 2. Key Parameters Grid -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Key Parameters</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">Curing Regime</span>
+                            <span class="font-bold text-slate-800" id="specialCuring">-</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">Entrapped Air</span>
+                            <span class="font-mono font-bold text-slate-800" id="specialAir">-</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">Fresh Workability</span>
+                            <span class="font-mono font-bold text-slate-800" id="specialWorkability">-</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">Key Ratios</span>
+                            <span class="font-mono font-bold text-teal-800 truncate block" id="specialParamExtra">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Indicative Strength Range Basis -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-xs space-y-1.5">
+                    <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Strength Basis & Verification</h4>
+                    <p class="text-slate-600 leading-relaxed" id="specialStrengthBasis">Derived from published experimental test databases with physical closure rules.</p>
+                </div>
+
+                <!-- 4. Step-by-Step Technical Calculation Log -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Step-by-Step Calculation & Literature Framework</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Explicit technical calculations, governing equations, and scientific citations for each step.</p>
+                        </div>
+                        <span class="text-[11px] font-semibold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg">Scientific Framework</span>
+                    </div>
+                    <div id="specialStepsContainer" class="space-y-3.5"></div>
+                </div>
+
+                <!-- 5. Rule Checks (Pass/Fail) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Rule-Check Verification</h3>
+                        <span class="text-[11px] font-semibold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded">Literature Criteria</span>
+                    </div>
+                    <div id="specialChecksList" class="space-y-2.5 text-xs"></div>
+                </div>
+
+                <!-- 6. Curing & Expected Properties -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2 text-xs">
+                    <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Curing & Expected Fresh / Hardened Properties</h4>
+                    <div id="specialExpectedProps" class="text-slate-600 space-y-1.5 leading-relaxed"></div>
+                </div>
+
+                <!-- 7. Retrieved Benchmark Examples (From 570 Dataset) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Retrieved Benchmark Examples (From 570 Dataset)</h3>
+                        <span class="text-[11px] text-teal-700 font-semibold" id="benchmarkMatchCount">3 Nearest Matches</span>
+                    </div>
+                    <div id="similarExamplesList" class="space-y-3"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script>
+    let activeType = "geopolymer";
+
+    const selectSpecialType = document.getElementById("selectSpecialType");
+    const specialPageTitle = document.getElementById("specialPageTitle");
+    const parametersHeaderTitle = document.getElementById("parametersHeaderTitle");
+    const fieldCountBadge = document.getElementById("fieldCountBadge");
+    const dynamicParametersContainer = document.getElementById("dynamicParametersContainer");
+    const btnCalculate = document.getElementById("btnCalculate");
+    const btnText = document.getElementById("btnText");
+    const btnSpinner = document.getElementById("btnSpinner");
+    const placeholder = document.getElementById("resultsPlaceholder");
+    const resultsContainer = document.getElementById("resultsContainer");
+    const errorBox = document.getElementById("errorBox");
+    const errorDetails = document.getElementById("errorDetails");
+
+    const TYPE_DESCRIPTIONS = {
+        geopolymer: {
+            title: "Geopolymer Concrete",
+            desc: "Alkali-activated aluminosilicate binders (Fly Ash Class F/C, GGBS, Metakaolin, Silica Fume) activated by sodium/potassium silicate & hydroxide solutions.",
+            citations: "Hardjito & Rangan (2005), Davidovits (2008), RILEM TC 224-AAM + 128 Reference Papers (195 Mixes)."
+        },
+        "self-compacting": {
+            title: "Self-Compacting Concrete (SCC)",
+            desc: "High deformability without segregation, designed to flow through congested reinforcement under its own weight per EFNARC guidelines.",
+            citations: "EFNARC (2005), Okamura & Ouchi (2003)."
+        },
+        uhpc: {
+            title: "Ultra-High Performance Concrete (UHPC)",
+            desc: "Dense microstructural packing, low w/b ratio (< 0.22), silica fume, quartz flour and micro-steel fiber reinforcement (> 120 MPa).",
+            citations: "Richard & Cheyrezy (1995), AFGC/SETRA (2013)."
+        },
+        "fiber-reinforced": {
+            title: "Fibre-Reinforced Concrete (FRC)",
+            desc: "Discontinuous discrete fibers (steel, polypropylene, PVA, basalt) enhancing post-crack tensile capacity, energy absorption, and ductility.",
+            citations: "ACI 544.1R, ACI 544.4R, RILEM TC 162-TDF."
+        },
+        "self-healing": {
+            title: "Self-Healing Concrete",
+            desc: "Autogenous and autonomous crack-healing using encapsulated bacterial spores or crystalline chemical admixtures upon moisture ingress.",
+            citations: "Jonkers et al. (2010), De Belie et al. (2018), RILEM TC 221-SHC."
+        },
+        "3d-printing": {
+            title: "3D Printable Concrete (3DCP)",
+            desc: "Thixotropic mortar/concrete formulated for pumpability, printability, extrudability, and early buildability without formwork.",
+            citations: "Le et al. (2012), Buswell et al. (2018)."
+        },
+        ecc: {
+            title: "Engineered Cementitious Composites (Bendable ECC)",
+            desc: "Micromechanically tailored PVA/PE fiber concrete demonstrating extreme tensile strain capacity (> 3%) and tight micro-cracking.",
+            citations: "Li (2003), Li et al. (2001)."
+        },
+        lightweight: {
+            title: "Lightweight / Cellular Concrete",
+            desc: "Low-density concrete engineered using expanded clay/shale aggregates (LECA) or pre-formed foaming agents for thermal insulation.",
+            citations: "ACI 213R-14, Ramamurthy et al. (2009)."
+        },
+        "co2-injected": {
+            title: "CO₂-Injected / Mineralised Concrete",
+            desc: "Beneficial permanent sequestration of recycled CO2 gas during batching to form nano-calcium carbonate precipitates.",
+            citations: "Monkman et al. (2016), CarbonCure research."
+        },
+        "sea-sand": {
+            title: "Sea-Sand & Seawater Concrete",
+            desc: "Sustainable concrete utilising untreated sea sand and seawater paired with non-corrosive FRP reinforcement or slag binders.",
+            citations: "Xiao et al. (2017), Teng et al. (2018)."
+        },
+        pervious: {
+            title: "Pervious Concrete Pavement",
+            desc: "Interconnected void network (15–25%) with narrow aggregate sizing for high hydraulic permeability and stormwater infiltration.",
+            citations: "ACI 522R-10, Neithalath et al. (2010)."
+        },
+        "self-sensing": {
+            title: "Self-Sensing / Smart Concrete",
+            desc: "Piezoresistive concrete containing functional carbon nanotubes (CNT) or carbon fibres for structural health monitoring.",
+            citations: "Chung (2000, 2002), Han et al. (2015)."
+        }
+    };
+
+    function renderSpecialForm() {
+        dynamicParametersContainer.innerHTML = "";
+        const schema = window.TYPE_SCHEMAS[activeType];
+        if (!schema) return;
+
+        const fields = schema.fields || [];
+        fieldCountBadge.textContent = `${fields.length} Parameters`;
+        parametersHeaderTitle.textContent = `${schema.name} Parameters`;
+        btnText.textContent = `Generate ${schema.name} Mix Proposal`;
+
+        const grid = document.createElement("div");
+        grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-3.5";
+
+        fields.forEach(field => {
+            const fieldWrapper = document.createElement("div");
+            fieldWrapper.id = `wrapper_${field.key}`;
+
+            const labelEl = document.createElement("label");
+            labelEl.className = "block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between";
+            labelEl.htmlFor = `field_${field.key}`;
+            labelEl.innerHTML = `<span>${field.label}</span>${field.unit ? `<span class="text-[10px] text-slate-400 font-normal">(${field.unit})</span>` : ''}`;
+            fieldWrapper.appendChild(labelEl);
+
+            if (field.kind === "select") {
+                const select = document.createElement("select");
+                select.id = `field_${field.key}`;
+                select.name = field.key;
+                select.className = "w-full text-xs font-medium rounded-lg border border-slate-300 p-2.5 bg-white focus:ring-2 focus:ring-teal-600 focus:border-transparent transition";
+                
+                (field.options || []).forEach(opt => {
+                    const optionEl = document.createElement("option");
+                    optionEl.value = opt.value;
+                    optionEl.textContent = opt.label;
+                    if (opt.value === field.default) optionEl.selected = true;
+                    select.appendChild(optionEl);
+                });
+                fieldWrapper.appendChild(select);
+
+            } else if (field.kind === "number") {
+                const input = document.createElement("input");
+                input.type = "number";
+                input.id = `field_${field.key}`;
+                input.name = field.key;
+                input.className = "w-full text-xs font-medium rounded-lg border border-slate-300 p-2.5 bg-white focus:ring-2 focus:ring-teal-600 focus:border-transparent transition";
+                if (field.min !== undefined) input.min = field.min;
+                if (field.max !== undefined) input.max = field.max;
+                if (field.step !== undefined) input.step = field.step;
+                input.value = field.default !== undefined ? field.default : "";
+                fieldWrapper.appendChild(input);
+            }
+
+            if (field.help) {
+                const helpEl = document.createElement("p");
+                helpEl.className = "text-[10px] text-slate-400 mt-1 leading-snug";
+                helpEl.textContent = field.help;
+                fieldWrapper.appendChild(helpEl);
+            }
+
+            grid.appendChild(fieldWrapper);
+        });
+
+        dynamicParametersContainer.appendChild(grid);
+    }
+
+    function collectFormData() {
+        const schema = window.TYPE_SCHEMAS[activeType];
+        if (!schema) return {};
+
+        const data = {
+            concrete_type: activeType
+        };
+
+        (schema.fields || []).forEach(field => {
+            const el = document.getElementById(`field_${field.key}`);
+            if (el) {
+                if (field.kind === "number") {
+                    const val = parseFloat(el.value);
+                    if (!isNaN(val)) data[field.key] = val;
+                } else {
+                    data[field.key] = el.value;
+                }
+            }
+        });
+
+        return data;
+    }
+
+    async function executeSpecialDesign() {
+        errorBox.classList.add("hidden");
+        btnSpinner.classList.remove("hidden");
+        btnCalculate.disabled = true;
+
+        const payload = collectFormData();
+
+        try {
+            const resp = await fetch("/api/design", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await resp.json();
+
+            if (!resp.ok) {
+                throw new Error(data.detail?.message || data.message || "Failed to calculate mix proposal");
+            }
+
+            renderSpecialResults(data);
+
+        } catch (err) {
+            console.error(err);
+            errorDetails.textContent = err.message || "Server calculation error";
+            errorBox.classList.remove("hidden");
+        } finally {
+            btnSpinner.classList.add("hidden");
+            btnCalculate.disabled = false;
+        }
+    }
+
+    function renderSpecialResults(data) {
+        const res = data.result;
+        const schema = window.TYPE_SCHEMAS[activeType] || {};
+
+        document.getElementById("specialTypeTitle").textContent = `${schema.name || activeType.toUpperCase()} Mix Proposal`;
+        document.getElementById("specialBaseId").textContent = res.base_example_id || "REF";
+        document.getElementById("specialDisclaimerText").textContent = res.disclaimer || "Reference-based mix proposal. Trial mixes and lab verification are mandatory.";
+
+        const vBadge = document.getElementById("specialVerificationBadge");
+        if (res.verification_status === "verified" || res.verification_status === "literature_based_verified") {
+            vBadge.textContent = "Literature Verified";
+            vBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+        } else {
+            vBadge.textContent = "Literature Reference";
+            vBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300";
+        }
+
+        const sRange = res.indicative_28d_range || [30, 40];
+        document.getElementById("specialStrengthRange").textContent = `${Math.round(sRange[0])} – ${Math.round(sRange[1])} MPa`;
+
+        // 1. Proposed Mix (kg/m3 table)
+        const compsTable = document.getElementById("specialQuantitiesTable");
+        const compEntries = Object.entries(res.components_kg || {});
+        compsTable.innerHTML = compEntries.map(([comp, val]) => {
+            const prettyName = comp.replace(/_kg|_litres/g, "").replace(/_/g, " ").toUpperCase();
+            const num = (typeof val === "number") ? val.toFixed(1) : (parseFloat(val) ? parseFloat(val).toFixed(1) : val);
+            return `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-2.5 px-3 font-semibold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+                        ${prettyName}
+                    </td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold text-teal-800">${num}</td>
+                    <td class="py-2.5 px-3 text-slate-500 italic">Constituent per 1 m³ (absolute volume closed)</td>
+                </tr>
+            `;
+        }).join("");
+
+        // 2. Key Parameters
+        document.getElementById("specialCuring").textContent = res.curing || "Standard Curing";
+        document.getElementById("specialAir").textContent = (res.parameters?.entrapped_air_pct || 1.5) + "%";
+        document.getElementById("specialWorkability").textContent = res.expected_properties?.workability || "Good fresh consistency";
+        
+        const extraParams = Object.entries(res.parameters || {})
+            .filter(([k]) => k !== 'entrapped_air_pct')
+            .map(([k, v]) => `${k}: ${v}`).join(", ");
+        document.getElementById("specialParamExtra").textContent = extraParams || "-";
+
+        // 3. Strength Basis
+        document.getElementById("specialStrengthBasis").textContent = res.strength_basis || "Anchored on peer-reviewed experimental test databases with physical closure rules.";
+
+        // 4. Render Step-by-Step Technical Calculation Log
+        const stepsContainer = document.getElementById("specialStepsContainer");
+        if (stepsContainer) {
+            const steps = res.steps || [];
+            if (steps.length > 0) {
+                stepsContainer.innerHTML = steps.map(s => `
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 transition space-y-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/60 pb-2">
+                            <span class="font-bold text-slate-900 text-xs sm:text-sm">${s.step}</span>
+                            <span class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-teal-100/70 text-teal-900 border border-teal-200 self-start sm:self-auto">${s.clause || 'Literature Anchor'}</span>
+                        </div>
+                        ${s.clause_statement ? `<p class="text-xs text-slate-600 italic leading-relaxed">${s.clause_statement}</p>` : ''}
+                        ${s.formula ? `
+                            <div class="px-2.5 py-1.5 bg-slate-100 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-800">
+                                <span class="text-slate-400 uppercase text-[9px] font-bold block mb-0.5">Governing Formula:</span>
+                                <span>${s.formula}</span>
+                            </div>
+                        ` : ''}
+                        <div class="p-2.5 bg-white rounded-lg border border-teal-200/90 font-mono text-xs text-teal-950 font-semibold leading-relaxed">
+                            <span class="text-teal-700 uppercase text-[9px] font-bold block mb-0.5 font-sans">Calculation & Substitution:</span>
+                            ${s.calculation || s.value || ''}
+                        </div>
+                        ${s.note ? `<p class="text-[11px] text-slate-500 leading-relaxed font-sans"><strong class="text-slate-700">Engineering Note:</strong> ${s.note}</p>` : ''}
+                    </div>
+                `).join("");
+            } else {
+                stepsContainer.innerHTML = `<p class="text-xs text-slate-400 italic">No intermediate step calculation logs returned.</p>`;
+            }
+        }
+
+        // 5. Rule Checks
+        const checksList = document.getElementById("specialChecksList");
+        const checks = res.checks || {};
+        checksList.innerHTML = Object.entries(checks).map(([check, pass]) => `
+            <div class="flex items-center justify-between p-2 rounded-lg ${pass ? 'bg-emerald-50 text-emerald-900' : 'bg-red-50 text-red-900'}">
+                <span class="font-medium">${check.replace(/_/g, ' ')}</span>
+                <span class="font-bold font-mono text-[10px] uppercase px-2 py-0.5 rounded ${pass ? 'bg-emerald-200' : 'bg-red-200'}">${pass ? 'PASSED' : 'CHECK'}</span>
+            </div>
+        `).join("");
+
+        // 6. Expected Properties
+        const expProps = document.getElementById("specialExpectedProps");
+        const props = res.expected_properties || {};
+        expProps.innerHTML = Object.entries(props).map(([k, v]) => `
+            <div><strong class="text-slate-800 capitalize">${k.replace(/_/g, ' ')}:</strong> ${v}</div>
+        `).join("");
+
+        // 7. Retrieved Similar Examples
+        const similarList = document.getElementById("similarExamplesList");
+        const examples = data.retrieved_examples || [];
+        if (examples.length > 0) {
+            similarList.innerHTML = examples.map(ex => `
+                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-teal-300 transition space-y-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono font-bold text-xs text-teal-900">${ex.external_id || 'ID'}</span>
+                        <span class="text-[10px] font-semibold text-slate-500">${ex.title || ex.concrete_type}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 line-clamp-2">${ex.problem_statement || 'Literature benchmark formulation.'}</p>
+                    <div class="text-[10px] font-mono text-teal-700 pt-1 flex items-center justify-between">
+                        <span>Comp. Strength: ${ex.characteristic_strength_mpa || ex.target_mean_strength_mpa || '-'} MPa</span>
+                        <span>w/cm: ${ex.water_cement_ratio || '-'}</span>
+                    </div>
+                </div>
+            `).join("");
+        } else {
+            similarList.innerHTML = `<p class="text-xs text-slate-400 italic">No similar benchmark examples found.</p>`;
+        }
+
+        // Show results, hide placeholder
+        placeholder.classList.add("hidden");
+        resultsContainer.classList.remove("hidden");
+    }
+
+    selectSpecialType.addEventListener("change", () => {
+        activeType = selectSpecialType.value;
+        placeholder.classList.remove("hidden");
+        resultsContainer.classList.add("hidden");
+        errorBox.classList.add("hidden");
+        renderSpecialForm();
+    });
+
+    btnCalculate.addEventListener("click", executeSpecialDesign);
+
+    // Initial load
+    renderSpecialForm();
+</script>
+{% endblock %}

@@ -1,0 +1,1418 @@
+{% extends "base.html" %}
+
+{% block title %}Mix Design Workbench — ConcreteMix AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Cross-Navigation Banner to Special Mixes -->
+    <div class="mb-6 p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-slate-800 text-white flex items-center justify-center font-black text-sm shadow-sm">
+                GP
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wide">Designing Geopolymer or Special Concrete?</h4>
+                <p class="text-xs text-slate-600">Formulate Geopolymers (13 parameters, 195 literature mixes), SCC, UHPC, and other special concretes directly.</p>
+            </div>
+        </div>
+        <a href="/special" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-black shadow-sm transition inline-flex items-center gap-1.5 whitespace-nowrap">
+            Open Special Mixes Workbench &rarr;
+        </a>
+    </div>
+
+    <!-- Dynamic Header -->
+    <div class="mb-8" id="pageHeader">
+        <h1 id="pageTitle" class="text-3xl font-extrabold text-slate-900 tracking-tight">Conventional Mix Design Workbench (OPC / PPC / PSC)</h1>
+        <p id="pageSubtitle" class="text-sm text-slate-500 mt-1">IS 10262:2019 proportioning calculator for OPC 33/43/53, PPC (IS 1489), and PSC (IS 455) with natural language problem statement parsing and statutory curves.</p>
+    </div>
+
+    <!-- Main Grid: Linear Flow (1 Describe -> 2 Type -> 3 Parameters -> 4 Result) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: Input Form (5 Cols) -->
+        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+            
+            <!-- STEP 1: Describe (Problem Statement) -->
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label for="problemText" class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">1</span>
+                        <span>Natural-Language Problem Statement</span>
+                    </label>
+                    <button type="button" id="btnSample" class="text-xs text-teal-700 hover:underline font-semibold">Ternary Blend Sample</button>
+                </div>
+                <textarea id="problemText" rows="4" class="w-full text-sm rounded-xl border border-slate-300 p-3 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent font-sans" placeholder="e.g. Design M30 concrete for RCC beam with 20mm aggregate, 100mm slump, moderate exposure, OPC 43 grade..."></textarea>
+                
+                <!-- Quick Type Sample Prompts Pills (Swapped dynamically based on activeType) -->
+                <div class="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]" id="quickPromptsContainer">
+                    <span class="text-slate-400 font-medium mr-1">Quick prompts:</span>
+                    <div id="quickPromptPills" class="flex flex-wrap gap-1"></div>
+                </div>
+            </div>
+
+            <!-- Hidden Conventional Concrete Anchor -->
+            <input type="hidden" id="selectConcreteType" value="conventional">
+            <div id="singleDetectionPill" class="hidden">
+                <span id="detectedPillText" class="hidden"></span>
+                <button type="button" id="btnApplyDetected" class="hidden"></button>
+                <button type="button" id="btnDismissDetected" class="hidden"></button>
+            </div>
+
+            <!-- Live Parsing Chips Bar (Strictly active schema keys only; default muted, extracted bold, clamped amber) -->
+            <div id="liveParsingSection" class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-teal-800">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-teal-600 animate-ping"></span>
+                        Active Type Parameters
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-normal">Click chip to focus field</span>
+                </div>
+                <div id="liveChipsContainer" class="flex flex-wrap gap-1.5"></div>
+                <div id="clampedWarningBanner" class="hidden text-[11px] font-semibold text-amber-900 bg-amber-50 p-2 rounded-lg border border-amber-200"></div>
+            </div>
+
+            <!-- STEP 2: Parameters Form (Strictly and only active type schema keys) -->
+            <div class="border-t border-slate-100 pt-4 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">2</span>
+                        <span id="parametersHeaderTitle">IS 10262 Statutory Parameters</span>
+                    </h3>
+                    <span class="text-[11px] text-slate-400">Schema Driven &bull; Fully Editable</span>
+                </div>
+
+                <!-- Dynamically rendered parameter fields container -->
+                <div id="dynamicParametersContainer" class="space-y-4">
+                    <!-- Destroyed and rebuilt on activeType change -->
+                </div>
+            </div>
+
+            <!-- STEP 4: Action Button -->
+            <div class="pt-2">
+                <button type="button" id="btnCalculate" class="w-full py-3.5 px-4 rounded-xl font-bold text-white bg-teal-700 hover:bg-teal-800 shadow-md transition flex justify-center items-center gap-2">
+                    <span id="btnText">Execute IS 10262:2019 Proportioning Engine</span>
+                    <div id="btnSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Column: Output & Interpretation (7 Cols) -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Placeholder state before calculation -->
+            <div id="resultsPlaceholder" class="bg-white p-12 rounded-2xl border border-dashed border-slate-300 text-center">
+                <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center font-bold text-lg mb-3">AI</div>
+                <h3 class="text-base font-bold text-slate-700" id="placeholderTitle">Calculation Engine Ready</h3>
+                <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed" id="placeholderDesc">
+                    Describe your concrete requirements on the left. The workbench will configure the exact parameter inputs for the selected concrete type.
+                </p>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="errorBox" class="hidden p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
+                <div class="font-bold mb-1">Validation Issue</div>
+                <div id="errorDetails"></div>
+            </div>
+
+            <!-- Dynamic Results Container -->
+            <div id="resultsContainer" class="hidden space-y-6">
+
+                <!-- ══════════════ PANEL A: CONVENTIONAL IS 10262 RESULTS ══════════════ -->
+                <div id="conventionalResults" class="space-y-6">
+                    <!-- Engineering Rationale Table -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-teal-600"></span>
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Engineering Rationale & Input Traceability</h3>
+                            </div>
+                            <span class="text-[11px] text-slate-400">Parameter derivation trace</span>
+                        </div>
+
+                        <div class="overflow-hidden border border-slate-200/80 rounded-xl">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3 w-1/4">Parameter</th>
+                                        <th class="py-2.5 px-3 w-1/4">Value Chosen</th>
+                                        <th class="py-2.5 px-3 w-1/2">Engineering Reason & Source</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditTableBody" class="divide-y divide-slate-100 text-slate-700 bg-white"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Calculated Mix Proportions Card -->
+                    <div class="bg-white p-6 rounded-2xl border border-teal-200 shadow-sm relative overflow-hidden">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-teal-700">Calculated Mix Proportions (SSD)</span>
+                                <h2 class="text-2xl font-black text-slate-900 mt-0.5" id="resTargetSummary">M30 Mix</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="window.print()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition flex items-center gap-1.5 no-print" title="Print Mix Sheet">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                    Print / PDF
+                                </button>
+                                <div class="text-right pl-3 border-l border-slate-200">
+                                    <div class="text-[10px] text-slate-400 font-semibold uppercase">Ratio by mass</div>
+                                    <div class="text-lg font-mono font-bold text-slate-800" id="resRatio">1 : 1.85 : 3.17</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quantities Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center my-4">
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="text-[10px] uppercase font-bold text-slate-500">Cement</div>
+                                <div class="text-lg font-extrabold text-slate-900 mt-0.5"><span id="resCement">-</span> <span class="text-xs font-normal text-slate-500">kg/m³</span></div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="text-[10px] uppercase font-bold text-slate-500">Water (w/c)</div>
+                                <div class="text-lg font-extrabold text-slate-900 mt-0.5"><span id="resWater">-</span> <span class="text-xs font-normal text-slate-500">kg/m³</span></div>
+                                <div class="text-[10px] text-teal-700 font-semibold" id="resWcVal">w/c: 0.50</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="text-[10px] uppercase font-bold text-slate-500">Fine Aggregate</div>
+                                <div class="text-lg font-extrabold text-slate-900 mt-0.5"><span id="resFA">-</span> <span class="text-xs font-normal text-slate-500">kg/m³</span></div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="text-[10px] uppercase font-bold text-slate-500">Coarse Aggregate</div>
+                                <div class="text-lg font-extrabold text-slate-900 mt-0.5"><span id="resCA">-</span> <span class="text-xs font-normal text-slate-500">kg/m³</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Admixtures Banner -->
+                        <div id="resAdmixtureBox" class="my-3 p-3 bg-teal-50/70 rounded-xl border border-teal-200 text-xs flex flex-wrap justify-between items-center gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-teal-900">Mineral SCM Additions:</span>
+                                <span id="resScmBreakdown" class="text-teal-800 font-mono font-bold">None</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-teal-900">Chemical Superplasticiser:</span>
+                                <span id="resSpMass" class="text-teal-800 font-mono font-bold">0.0 kg/m³</span>
+                            </div>
+                        </div>
+
+                        <!-- Field Moisture Adjustment -->
+                        <div class="border-t border-slate-100 pt-3 text-xs text-slate-600 flex justify-between items-center">
+                            <span class="font-semibold text-slate-700">Site Adjusted Quantities:</span>
+                            <span id="resFieldAdj" class="font-mono text-slate-800">Water: - kg | FA: - kg | CA: - kg</span>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step IS 10262 Verification Log -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Step-by-Step Code Verification</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Every proportioning step verified with exact statutory clause statements, calculations, and graphs.</p>
+                            </div>
+                            <span class="text-[11px] font-semibold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg">IS 10262:2019 Statutory Audit</span>
+                        </div>
+                        <div id="resStepsContainer" class="space-y-3.5"></div>
+                    </div>
+
+                    <!-- Retrieved Benchmark Examples -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Retrieved Benchmark Examples (From 570 Dataset)</h3>
+                            <span class="text-xs text-teal-700 font-semibold">RAG Ground Truth</span>
+                        </div>
+                        <div id="similarExamplesList" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <!-- ══════════════ PANEL B: SPECIAL CONCRETE LITERATURE PROPOSAL ══════════════ -->
+                <div id="specialResults" class="hidden space-y-6">
+                    
+                    <!-- 1. Proposed Mix (kg/m3 table) -->
+                    <div class="bg-white p-6 rounded-2xl border border-teal-200 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-2xl font-black text-slate-900" id="specialTypeTitle">Mix Proposal</h2>
+                                    <span id="specialVerificationBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                        Literature Verified
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Base Reference Mix ID: <span id="specialBaseId" class="font-mono font-bold text-teal-800">REF</span></p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] uppercase text-slate-400 font-bold block">Indicative 28d Strength</span>
+                                <span class="text-xl font-mono font-black text-teal-800" id="specialStrengthRange">25 &ndash; 35 MPa</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Proposed Mix Proportions (Absolute Volume Closed = 1.000 m³)</h3>
+                            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-2.5 px-3">Component Constituent</th>
+                                            <th class="py-2.5 px-3 text-right">Batch Mass (kg/m³)</th>
+                                            <th class="py-2.5 px-3">Physical Specification</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="specialQuantitiesTable" class="divide-y divide-slate-100 text-slate-800 bg-white"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Key Parameters Grid -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Key Parameters</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Curing Regime</span>
+                                <span class="font-bold text-slate-800" id="specialCuring">-</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Entrapped Air</span>
+                                <span class="font-mono font-bold text-slate-800" id="specialAir">-</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Fresh Workability</span>
+                                <span class="font-mono font-bold text-slate-800" id="specialWorkability">-</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Key Ratios</span>
+                                <span class="font-mono font-bold text-teal-800 truncate block" id="specialParamExtra">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Indicative Strength Range Basis -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-xs space-y-1.5">
+                        <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Strength Basis & Verification</h4>
+                        <p class="text-slate-600 leading-relaxed" id="specialStrengthBasis">Derived from published experimental test databases with physical closure rules.</p>
+                    </div>
+
+                    <!-- Step-by-Step Technical Calculation Log -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Step-by-Step Calculation & Literature Framework</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Explicit technical calculations, governing equations, and scientific citations for each step.</p>
+                            </div>
+                            <span class="text-[11px] font-semibold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg">Scientific Framework</span>
+                        </div>
+                        <div id="specialStepsContainer" class="space-y-3.5"></div>
+                    </div>
+
+                    <!-- 4. Rule Checks (Pass/Fail) -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Rule-Check Verification</h3>
+                            <span class="text-[11px] font-semibold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded">Literature Criteria</span>
+                        </div>
+                        <div id="specialChecksList" class="space-y-2.5 text-xs"></div>
+                    </div>
+
+                    <!-- 5. Curing & Expected Properties -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2 text-xs">
+                        <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Curing & Expected Fresh / Hardened Properties</h4>
+                        <div id="specialExpectedProps" class="text-slate-600 space-y-1.5 leading-relaxed"></div>
+                    </div>
+
+                    <!-- 6. Base Reference Mix & Similar Candidates -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Base Reference Mix & Similar Candidate Mixes</h3>
+                        <div id="specialSimilarList" class="space-y-2 text-xs"></div>
+                    </div>
+
+                    <!-- 7. Primary Literature Sources -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2 text-xs">
+                        <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Primary Literature References</h4>
+                        <ul id="specialSourcesList" class="text-slate-600 space-y-1.5 list-disc pl-4 text-[11px] leading-relaxed"></ul>
+                    </div>
+
+                    <!-- 8. Mandatory Disclaimer Banner (At bottom of result) -->
+                    <div class="p-4 rounded-xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-xs flex items-start gap-3 shadow-xs">
+                        <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="space-y-1">
+                            <span class="font-black text-amber-900 uppercase tracking-wide text-xs">Literature Reference-Based Mix Proposal &mdash; Not an IS 10262 Calculation</span>
+                            <p class="leading-relaxed font-medium" id="specialDisclaimerText">
+                                Reference-based mix from published literature &mdash; not an IS 10262 calculation. Trial mixes and lab verification are mandatory.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.TYPE_SCHEMAS = {{ type_schemas|tojson }};
+
+document.addEventListener("DOMContentLoaded", function() {
+    // State machine: single source of truth
+    let activeType = "conventional";
+    let isAutoMode = false;
+    let detectedType = null;
+    let parsedData = {};
+    let parseDebounce = null;
+
+    // Type-specific quick prompts dictionary
+    const QUICK_PROMPTS = {
+        conventional: [
+            { label: "M30 Frame (OPC 43)", prompt: "Design M30 concrete for RCC beam with 20mm aggregate, 100mm slump, moderate exposure, OPC 43 grade" },
+            { label: "M40 High-Early (OPC 53)", prompt: "Design M40 concrete for column using OPC 53 grade cement, 20mm aggregate, 100mm slump, severe exposure" },
+            { label: "M25 Blended PPC (IS 1489)", prompt: "Design M25 concrete using PPC cement with 20mm aggregate, 100mm slump, moderate exposure for residential slab" },
+            { label: "M35 Marine PSC Slag (IS 455)", prompt: "Design M35 concrete with PSC Portland Slag Cement for marine jetty in severe exposure with 125mm slump" },
+            { label: "M40 Fly Ash (20%) + SF (5%)", prompt: "Design M40 concrete with 20% Fly Ash and 5% Silica Fume for bridge pier in severe marine exposure" },
+            { label: "M25 Pumped Slab (OPC 43)", prompt: "M25 concrete for RCC slab placed by pump with 125mm slump, 20mm aggregate in mild exposure" }
+        ],
+        geopolymer: [
+            { label: "12M NaOH 30% GGBS", prompt: "Design a geopolymer concrete with 12M NaOH, Na2SiO3/NaOH ratio 2.5, 30% GGBS, ambient cured. Target strength 40 MPa." },
+            { label: "Heat Cured 60°C FA", prompt: "Fly ash geopolymer concrete with 10M NaOH, Na2SiO3/NaOH 2.0, heat cured at 60°C, target strength 35 MPa." },
+            { label: "14M High Strength", prompt: "Geopolymer mix with 14M NaOH, 45% GGBS, alkaline liquid/binder 0.35, ambient curing for 50 MPa." },
+            { label: "Metakaolin 50% G50", prompt: "Metakaolin-based geopolymer with 50% MK binder, 12M NaOH activator, Na2SiO3/NaOH 2.5, ambient cured, target strength 50 MPa." },
+            { label: "One-Part Dry Mix", prompt: "One-part geopolymer concrete using solid sodium metasilicate activator, fly ash binder, just add water, ambient cured, G35." },
+            { label: "Steel Fiber + GP", prompt: "Fiber-reinforced geopolymer with 1.0% steel fibers, 14M NaOH, 40% GGBS, ambient cured, target 55 MPa for industrial floor." },
+            { label: "KOH Fire Resistant", prompt: "Potassium activator geopolymer with KOH 12M + K2SiO3, 100% fly ash, heat cured 75°C, fire resistance up to 800°C, G45." },
+            { label: "Ternary FA+GGBS+SF", prompt: "Ternary geopolymer blend: 60% fly ash + 30% GGBS + 10% silica fume, 10M NaOH, Na2SiO3/NaOH 2.0, ambient cured, G50." },
+            { label: "AAS 100% Slag", prompt: "Alkali-activated slag concrete with 100% GGBS binder, 10M NaOH, sodium silicate activator, borax retarder, ambient cured, G40." }
+        ],
+        "self-healing": [
+            { label: "Bacterial M30", prompt: "Bacterial self-healing concrete M30 with Bacillus pseudofirmus spores, w/cm 0.45, 15% fly ash in severe exposure." },
+            { label: "Crystalline M35", prompt: "Self-healing concrete M35 using crystalline hydrophilic admixture at w/cm 0.40 in severe water retaining structure." }
+        ],
+        "self-sensing": [
+            { label: "0.5% CNT Strain", prompt: "Self-sensing smart concrete with 0.5% CNT carbon nanotubes, w/b 0.38, 10mm aggregate for strain monitoring." },
+            { label: "Carbon Fiber 1.0%", prompt: "Piezoresistive self-sensing concrete with 1.0% carbon fibre dosage and w/b 0.36 for structural health monitoring." }
+        ],
+        "self-compacting": [
+            { label: "SCC M40 Column", prompt: "SCC M40 self-compacting concrete with 550 kg/m3 powder content and 680 mm slump flow for congested column." },
+            { label: "SCC M50 Limestone", prompt: "Self-compacting concrete M50 with limestone powder filler, 580 kg/m3 powder, and 720 mm slump flow." }
+        ],
+        "3d-printing": [
+            { label: "3DCP OPC+FA+SF", prompt: "3D printable concrete with 800 kg/m3 binder, sand:binder 1.3, w/b 0.32, and PP micro-fibres." },
+            { label: "Metakaolin 3DCP", prompt: "Extrudable 3D printing concrete with OPC+FA+metakaolin binder 850 kg/m3 and w/b 0.30." }
+        ],
+        uhpc: [
+            { label: "UHPC 150 MPa", prompt: "UHPC mix with 150 MPa target compressive strength, 2.0 vol % steel fibres, silica fume, and w/b 0.18." },
+            { label: "Steam Cured 180 MPa", prompt: "Ultra-high performance concrete 180 MPa with 800 kg cement, 25% SF, 2.5% steel fiber, steam cured at 90 °C." }
+        ],
+        ecc: [
+            { label: "Bendable PVA 2.0%", prompt: "M40 ECC engineered cementitious composite with 2.0 vol% PVA fibres and w/b 0.28 for ductile bendable slab." },
+            { label: "High FA/Cement ECC", prompt: "ECC composite with FA/cement ratio 2.0, 1.8 vol% PVA fibers, and w/b 0.30." }
+        ],
+        lightweight: [
+            { label: "LECA 1600 kg/m³", prompt: "Structural lightweight aggregate concrete with expanded clay LECA, target density 1600 kg/m3, w/c 0.40." },
+            { label: "Foam Concrete", prompt: "Foamed lightweight concrete with target density 1200 kg/m3 and w/c 0.45." }
+        ],
+        "co2-injected": [
+            { label: "0.15% CO2 M30", prompt: "CO2-mineralised concrete M30 with 0.15% CO2 injection bwoc and 5% cement reduction." },
+            { label: "CO2 with 20% FA", prompt: "CO2-injected concrete M35 with 0.20% CO2 dose and 20% fly ash replacement." }
+        ],
+        "sea-sand": [
+            { label: "GFRP Marine Rebar", prompt: "Concrete using sea sand and seawater mixing with GFRP reinforcement bars in marine environment." },
+            { label: "40% GGBS Stainless", prompt: "M35 sea-sand concrete with 40% GGBS and stainless steel rebar." }
+        ],
+        pervious: [
+            { label: "20% Void Stormwater", prompt: "Pervious concrete pavement with 20% void ratio and 10 mm single-sized aggregate for stormwater infiltration." },
+            { label: "25% High Porosity", prompt: "Pervious concrete with 25% void ratio and w/c 0.30 for parking lot drainage." }
+        ],
+        "fiber-reinforced": [
+            { label: "Steel Hooked 40kg", prompt: "Steel fiber reinforced concrete M35 with 40 kg/m3 hooked-end steel fibers and w/c 0.42." },
+            { label: "Macro PP 5kg", prompt: "FRC concrete with 5 kg/m3 macro polypropylene synthetic fibres and w/c 0.45." }
+        ]
+    };
+
+    // DOM Elements
+    const pageTitle = document.getElementById("pageTitle");
+    const pageSubtitle = document.getElementById("pageSubtitle");
+    const problemText = document.getElementById("problemText");
+    const btnSample = document.getElementById("btnSample");
+    const selectConcreteType = document.getElementById("selectConcreteType");
+    const singleDetectionPill = document.getElementById("singleDetectionPill");
+    const detectedPillText = document.getElementById("detectedPillText");
+    const btnApplyDetected = document.getElementById("btnApplyDetected");
+    const btnDismissDetected = document.getElementById("btnDismissDetected");
+    const quickPromptPills = document.getElementById("quickPromptPills");
+    const liveChipsContainer = document.getElementById("liveChipsContainer");
+    const clampedWarningBanner = document.getElementById("clampedWarningBanner");
+    const parametersHeaderTitle = document.getElementById("parametersHeaderTitle");
+    const dynamicParametersContainer = document.getElementById("dynamicParametersContainer");
+    const btnCalc = document.getElementById("btnCalculate");
+    const btnText = document.getElementById("btnText");
+    const btnSpinner = document.getElementById("btnSpinner");
+    const placeholder = document.getElementById("resultsPlaceholder");
+    const resultsContainer = document.getElementById("resultsContainer");
+    const conventionalResults = document.getElementById("conventionalResults");
+    const specialResults = document.getElementById("specialResults");
+    const errorBox = document.getElementById("errorBox");
+    const errorDetails = document.getElementById("errorDetails");
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STATE MACHINE TRANSITIONS
+    // ─────────────────────────────────────────────────────────────────────────
+    function setActiveType(newType, triggerParse = true) {
+        if (!window.TYPE_SCHEMAS[newType]) {
+            console.error(`Unknown concrete type: ${newType}`);
+            return;
+        }
+        activeType = newType;
+
+        // 1. Update dropdown representation
+        if (!isAutoMode) {
+            selectConcreteType.value = activeType;
+        }
+
+        // 2. Update Header Title & Subtitle
+        const schema = window.TYPE_SCHEMAS[activeType];
+        if (activeType === "conventional") {
+            pageTitle.textContent = "Concrete Mix Design Workbench";
+            pageSubtitle.textContent = "IS 10262:2019 proportioning calculator with real-time natural language parameter extraction and multi-admixture blending.";
+            btnSample.classList.remove("hidden");
+            btnText.textContent = "Execute IS 10262:2019 Proportioning Engine";
+            parametersHeaderTitle.textContent = "IS 10262 Statutory Parameters";
+        } else {
+            pageTitle.textContent = `${schema.name} Workbench`;
+            pageSubtitle.textContent = `${schema.description} Reference-based proportioning anchored on published literature.`;
+            btnSample.classList.add("hidden");
+            btnText.textContent = `Generate ${schema.name} Mix Proposal`;
+            parametersHeaderTitle.textContent = `${schema.name} Parameters`;
+        }
+
+        // 3. Swap Quick Prompts
+        renderQuickPrompts();
+
+        // 4. Swap Placeholder
+        updatePlaceholderText();
+
+        // 5. Re-render dynamic parameter form strictly from schema
+        renderParametersForm();
+
+        // 6. Reset results panel to placeholder
+        placeholder.classList.remove("hidden");
+        resultsContainer.classList.add("hidden");
+        errorBox.classList.add("hidden");
+
+        // 7. Re-parse problem text if requested
+        if (triggerParse) {
+            triggerLiveParse();
+        }
+    }
+
+    function renderQuickPrompts() {
+        const prompts = QUICK_PROMPTS[activeType] || QUICK_PROMPTS["conventional"];
+        quickPromptPills.innerHTML = prompts.map(p => `
+            <button type="button" class="btnQuickSample px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-800 text-slate-600 border border-slate-200 transition" data-prompt="${p.prompt.replace(/"/g, '&quot;')}">
+                ${p.label}
+            </button>
+        `).join("");
+
+        quickPromptPills.querySelectorAll(".btnQuickSample").forEach(btn => {
+            btn.addEventListener("click", () => {
+                problemText.value = btn.getAttribute("data-prompt");
+                triggerLiveParse();
+            });
+        });
+    }
+
+    function updatePlaceholderText() {
+        if (activeType === "conventional") {
+            problemText.placeholder = "e.g. Design M30 concrete for RCC beam with 20mm aggregate, 100mm slump, moderate exposure, OPC 43 grade...";
+            document.getElementById("placeholderTitle").textContent = "IS 10262:2019 Engine Standing By";
+            document.getElementById("placeholderDesc").textContent = "Type or paste your design brief on the left. The engine computes target mean strength, w/c from Figure 1, water content, and absolute volumes.";
+        } else {
+            const schema = window.TYPE_SCHEMAS[activeType];
+            problemText.placeholder = `e.g. Design ${schema.name} mix with specified components and parameters...`;
+            document.getElementById("placeholderTitle").textContent = `${schema.name} Engine Standing By`;
+            document.getElementById("placeholderDesc").textContent = `Configure parameters for ${schema.name}. The engine matches reference literature benchmarks and executes physical closure rules.`;
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DYNAMIC PARAMETER FORM RENDERING (DESTROY & REBUILD)
+    // ─────────────────────────────────────────────────────────────────────────
+    function renderParametersForm() {
+        dynamicParametersContainer.innerHTML = "";
+
+        if (activeType === "conventional") {
+            renderConventionalForm();
+        } else {
+            renderSpecialSchemaForm();
+        }
+
+        // Attach change listeners to sync form with live chips
+        attachFormSyncListeners();
+    }
+
+    function renderSpecialSchemaForm() {
+        const schema = window.TYPE_SCHEMAS[activeType];
+        const fields = schema.fields || [];
+
+        // Render in a clean 2-column grid
+        const grid = document.createElement("div");
+        grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-3.5";
+
+        fields.forEach(field => {
+            const fieldWrapper = document.createElement("div");
+            fieldWrapper.id = `wrapper_${field.key}`;
+            
+            const labelEl = document.createElement("label");
+            labelEl.className = "block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between";
+            labelEl.htmlFor = `field_${field.key}`;
+            labelEl.innerHTML = `<span>${field.label}</span>${field.unit ? `<span class="text-[10px] text-slate-400 font-normal">(${field.unit})</span>` : ''}`;
+            fieldWrapper.appendChild(labelEl);
+
+            if (field.kind === "select") {
+                const select = document.createElement("select");
+                select.id = `field_${field.key}`;
+                select.name = field.key;
+                select.className = "w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white focus:ring-2 focus:ring-teal-600 focus:border-transparent transition";
+                
+                (field.options || []).forEach(opt => {
+                    const optionEl = document.createElement("option");
+                    optionEl.value = opt.value;
+                    optionEl.textContent = opt.label;
+                    if (opt.value === field.default) optionEl.selected = true;
+                    select.appendChild(optionEl);
+                });
+                fieldWrapper.appendChild(select);
+
+            } else if (field.kind === "number") {
+                const input = document.createElement("input");
+                input.type = "number";
+                input.id = `field_${field.key}`;
+                input.name = field.key;
+                input.className = "w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white focus:ring-2 focus:ring-teal-600 focus:border-transparent transition";
+                if (field.min !== undefined && field.min !== null) input.min = field.min;
+                if (field.max !== undefined && field.max !== null) input.max = field.max;
+                if (field.step !== undefined && field.step !== null) input.step = field.step;
+                input.value = field.default !== undefined ? field.default : "";
+                input.placeholder = field.help || `Range: [${field.min || 0} - ${field.max || 100}]`;
+                fieldWrapper.appendChild(input);
+
+            } else if (field.kind === "toggle") {
+                const toggleDiv = document.createElement("div");
+                toggleDiv.className = "flex items-center gap-2 pt-1";
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = `field_${field.key}`;
+                checkbox.name = field.key;
+                checkbox.checked = !!field.default;
+                checkbox.className = "rounded text-teal-700 focus:ring-teal-600 h-4 w-4";
+                const toggleLabel = document.createElement("span");
+                toggleLabel.className = "text-xs text-slate-600 font-medium";
+                toggleLabel.textContent = field.help || "Enable / Include";
+                toggleDiv.appendChild(checkbox);
+                toggleDiv.appendChild(toggleLabel);
+                fieldWrapper.appendChild(toggleDiv);
+            }
+
+            if (field.help && field.kind !== "toggle") {
+                const helpEl = document.createElement("p");
+                helpEl.className = "text-[10px] text-slate-400 mt-0.5 leading-tight";
+                helpEl.textContent = field.help;
+                fieldWrapper.appendChild(helpEl);
+            }
+
+            grid.appendChild(fieldWrapper);
+        });
+
+        dynamicParametersContainer.appendChild(grid);
+    }
+
+    function renderConventionalForm() {
+        dynamicParametersContainer.innerHTML = `
+            <div class="grid grid-cols-2 gap-3.5">
+                <div id="wrapper_fck">
+                    <label for="field_fck" class="block text-xs font-semibold text-slate-700 mb-1">Characteristic fck</label>
+                    <select id="field_fck" name="fck" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="15">M15 (Lean / Bedding)</option>
+                        <option value="20">M20 (PCC / Light RCC)</option>
+                        <option value="25">M25 (General RCC)</option>
+                        <option value="30" selected>M30 (Standard Frame)</option>
+                        <option value="35">M35 (Commercial)</option>
+                        <option value="40">M40 (Heavy Infrastructure)</option>
+                        <option value="45">M45 (Bridges / Flyovers)</option>
+                        <option value="50">M50 (Prestressed Girders)</option>
+                        <option value="55">M55 (High Early Strength)</option>
+                        <option value="60">M60 (High Strength Columns)</option>
+                    </select>
+                </div>
+                <div id="wrapper_exposure">
+                    <label for="field_exposure" class="block text-xs font-semibold text-slate-700 mb-1">Exposure Condition</label>
+                    <select id="field_exposure" name="exposure" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="mild">Mild (Interior / Dry)</option>
+                        <option value="moderate" selected>Moderate (Sheltered / Soil)</option>
+                        <option value="severe">Severe (Coastal / Wetting)</option>
+                        <option value="very severe">Very Severe (Sea Spray / Salt)</option>
+                        <option value="extreme">Extreme (Tidal / Offshore)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3.5">
+                <div id="wrapper_member">
+                    <label for="field_member" class="block text-xs font-semibold text-slate-700 mb-1">Member Construction</label>
+                    <select id="field_member" name="member" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="RCC" selected>RCC (Reinforced)</option>
+                        <option value="PCC">PCC (Plain)</option>
+                    </select>
+                </div>
+                <div id="wrapper_max_size">
+                    <label for="field_max_size" class="block text-xs font-semibold text-slate-700 mb-1">Max Aggregate Size</label>
+                    <select id="field_max_size" name="max_size" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="20" selected>20 mm (Standard)</option>
+                        <option value="10">10 mm (Congested / Thin)</option>
+                        <option value="40">40 mm (Mass Concrete / Raft)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3.5">
+                <div id="wrapper_slump">
+                    <label for="field_slump" class="block text-xs font-semibold text-slate-700 mb-1">Target Slump (mm)</label>
+                    <input type="number" id="field_slump" name="slump" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white" value="100" min="25" max="200" step="25">
+                </div>
+                <div id="wrapper_zone">
+                    <label for="field_zone" class="block text-xs font-semibold text-slate-700 mb-1">FA Grading Zone</label>
+                    <select id="field_zone" name="zone" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="II" selected>Zone II (Standard Sand)</option>
+                        <option value="I">Zone I (Coarse / Quarry)</option>
+                        <option value="III">Zone III (Finer Sand)</option>
+                        <option value="IV">Zone IV (Fine Sand)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3.5">
+                <div id="wrapper_cement_grade">
+                    <label for="field_cement_grade" class="block text-xs font-semibold text-slate-700 mb-1">Cement Grade</label>
+                    <select id="field_cement_grade" name="cement_grade" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="43" selected>OPC 43 Grade</option>
+                        <option value="53">OPC 53 Grade (High Early / HSC)</option>
+                        <option value="33">OPC 33 Grade (Low Heat)</option>
+                    </select>
+                </div>
+                <div id="wrapper_placement">
+                    <label for="field_placement" class="block text-xs font-semibold text-slate-700 mb-1">Placement Method</label>
+                    <select id="field_placement" name="placement" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="chute" selected>Chute / Crane & Bucket</option>
+                        <option value="pump">Concrete Pump (-10% CA)</option>
+                        <option value="tremie">Tremie (Underwater / Piles)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3.5">
+                <div id="wrapper_supervision">
+                    <label for="field_supervision" class="block text-xs font-semibold text-slate-700 mb-1">Degree of Supervision</label>
+                    <select id="field_supervision" name="supervision" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="good" selected>Good (IS 10262 Table 2)</option>
+                        <option value="very_good">Very Good (Certified RMC / Precast)</option>
+                        <option value="fair">Fair (Site Mixing / Ordinary Control)</option>
+                    </select>
+                </div>
+                <div id="wrapper_agg_type">
+                    <label for="field_agg_type" class="block text-xs font-semibold text-slate-700 mb-1">Aggregate Shape</label>
+                    <select id="field_agg_type" name="agg_type" class="w-full text-xs font-medium rounded-lg border border-slate-300 p-2 bg-white">
+                        <option value="angular" selected>Crushed Angular (Quarry Metal)</option>
+                        <option value="sub_angular">Sub-angular (-10 kg water)</option>
+                        <option value="gravel_crushed">Gravel with Crushed Particles (-15 kg)</option>
+                        <option value="rounded">Rounded Gravel (-20 kg water, +0.02 CA)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Mineral Admixtures (Ternary Blend) -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5">
+                <span class="text-[11px] font-bold text-teal-800 uppercase tracking-wider block">Mineral Admixtures (Ternary / Multi-Blend)</span>
+                
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="field_chk_fa" class="rounded text-teal-700 focus:ring-teal-600">
+                        <label for="field_chk_fa" class="text-xs font-semibold text-slate-800">Fly Ash (IS 3812 Part 1)</label>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="field_scm_fly_ash_pct" name="scm_fly_ash_pct" class="w-20 text-xs rounded-lg border border-slate-300 p-1.5 bg-white text-right" placeholder="0" min="0" max="35" step="5">
+                        <span class="text-xs text-slate-500 font-semibold">%</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 border-t border-slate-200/60 pt-2">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="field_chk_ggbs" class="rounded text-teal-700 focus:ring-teal-600">
+                        <label for="field_chk_ggbs" class="text-xs font-semibold text-slate-800">GGBS / Slag (IS 16714)</label>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="field_scm_ggbs_pct" name="scm_ggbs_pct" class="w-20 text-xs rounded-lg border border-slate-300 p-1.5 bg-white text-right" placeholder="0" min="0" max="60" step="5">
+                        <span class="text-xs text-slate-500 font-semibold">%</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 border-t border-slate-200/60 pt-2">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="field_chk_sf" class="rounded text-teal-700 focus:ring-teal-600">
+                        <label for="field_chk_sf" class="text-xs font-semibold text-slate-800">Silica Fume (IS 15388)</label>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="field_scm_sf_pct" name="scm_sf_pct" class="w-20 text-xs rounded-lg border border-slate-300 p-1.5 bg-white text-right" placeholder="0" min="0" max="15" step="1">
+                        <span class="text-xs text-slate-500 font-semibold">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collapsible Test Data for Materials (SG & Absorption) -->
+            <div class="border border-slate-200 rounded-xl overflow-hidden">
+                <button type="button" id="btnToggleTestData" class="w-full flex justify-between items-center text-left py-2.5 px-3 bg-slate-50 hover:bg-slate-100 transition">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-800">Advanced Materials Test Data (IS 10262 C-2)</span>
+                    </div>
+                    <span id="testDataBadge" class="text-[11px] font-semibold text-teal-700">Lab Specific Gravities &darr;</span>
+                </button>
+                <div id="testDataContainer" class="hidden p-3.5 bg-slate-50/60 border-t border-slate-200 space-y-3 text-xs">
+                    <div class="grid grid-cols-3 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-700 mb-0.5">SG Cement</label>
+                            <input type="number" id="field_sg_cement" class="w-full text-xs rounded-lg border border-slate-300 p-1.5 bg-white text-right font-mono" value="3.15" min="2.80" max="3.30" step="0.01">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-700 mb-0.5">SG CA (SSD)</label>
+                            <input type="number" id="field_sg_ca" class="w-full text-xs rounded-lg border border-slate-300 p-1.5 bg-white text-right font-mono" value="2.74" min="2.40" max="3.10" step="0.01">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-700 mb-0.5">SG FA (SSD)</label>
+                            <input type="number" id="field_sg_fa" class="w-full text-xs rounded-lg border border-slate-300 p-1.5 bg-white text-right font-mono" value="2.65" min="2.40" max="2.95" step="0.01">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-200/60">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-700 mb-0.5">CA Absorption (%)</label>
+                            <input type="number" id="field_abs_ca" class="w-full text-xs rounded-lg border border-slate-300 p-1.5 bg-white text-right font-mono" value="0.5" min="0" max="3.0" step="0.1">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-700 mb-0.5">FA Absorption (%)</label>
+                            <input type="number" id="field_abs_fa" class="w-full text-xs rounded-lg border border-slate-300 p-1.5 bg-white text-right font-mono" value="1.0" min="0" max="5.0" step="0.1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const btnToggle = document.getElementById("btnToggleTestData");
+        const testContainer = document.getElementById("testDataContainer");
+        const badge = document.getElementById("testDataBadge");
+        if (btnToggle) {
+            btnToggle.addEventListener("click", () => {
+                testContainer.classList.toggle("hidden");
+                badge.innerHTML = testContainer.classList.contains("hidden") ? "Lab Specific Gravities &darr;" : "Hide &uarr;";
+            });
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // LIVE PARSING & CHIPS SYNC
+    // ─────────────────────────────────────────────────────────────────────────
+    problemText.addEventListener("input", () => {
+        clearTimeout(parseDebounce);
+        parseDebounce = setTimeout(triggerLiveParse, 300);
+    });
+
+    async function triggerLiveParse() {
+        const text = problemText.value.trim();
+        if (!text) {
+            singleDetectionPill.classList.add("hidden");
+            clampedWarningBanner.classList.add("hidden");
+            renderLiveChips({}, [], {});
+            return;
+        }
+
+        try {
+            const resp = await fetch("/api/design/parse", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    problem_text: text,
+                    active_type: isAutoMode ? "auto" : activeType
+                })
+            });
+
+            const data = await resp.json();
+            parsedData = data.parsed || {};
+
+            // Handle Detection Pill
+            if (data.detected_type) {
+                detectedType = data.detected_type;
+                const confPct = Math.round((data.confidence || 0.85) * 100);
+                const matched = (data.matched_keywords || []).slice(0, 3).join(", ");
+                
+                // If auto-detect mode is active and detected type differs from activeType, switch automatically
+                if (isAutoMode && detectedType !== activeType) {
+                    setActiveType(detectedType, false);
+                }
+
+                // Show single detection pill
+                detectedPillText.textContent = `${detectedType.toUpperCase()} · ${confPct}% · matched: ${matched}`;
+                singleDetectionPill.classList.remove("hidden");
+                
+                // If user override is active, allow them to switch back to detected
+                if (!isAutoMode && detectedType !== activeType) {
+                    btnApplyDetected.classList.remove("hidden");
+                    btnApplyDetected.textContent = `Switch to ${detectedType}`;
+                } else {
+                    btnApplyDetected.classList.add("hidden");
+                }
+            } else {
+                singleDetectionPill.classList.add("hidden");
+            }
+
+            // Sync parsed data to form inputs
+            syncParsedDataToForm(parsedData);
+
+            // Render live chips strictly for active schema fields
+            renderLiveChips(parsedData, data.extracted_keys || [], data.clamped_keys || {});
+
+            // Handle Clamped Warnings
+            if (data.warnings && data.warnings.length > 0) {
+                clampedWarningBanner.textContent = data.warnings.join(" | ");
+                clampedWarningBanner.classList.remove("hidden");
+            } else {
+                clampedWarningBanner.classList.add("hidden");
+            }
+
+        } catch (err) {
+            console.error("Live parse error", err);
+        }
+    }
+
+    function syncParsedDataToForm(parsed) {
+        const schema = window.TYPE_SCHEMAS[activeType];
+        if (!schema) return;
+
+        (schema.fields || []).forEach(f => {
+            const el = document.getElementById(`field_${f.key}`);
+            if (!el) return;
+
+            if (parsed[f.key] !== undefined && parsed[f.key] !== null) {
+                if (f.kind === "toggle") {
+                    el.checked = !!parsed[f.key];
+                } else {
+                    el.value = parsed[f.key];
+                }
+            }
+        });
+
+        // Conventional SCM checkboxes sync
+        if (activeType === "conventional") {
+            const fa = parsed.scm_fly_ash_pct || 0;
+            const ggbs = parsed.scm_ggbs_pct || 0;
+            const sf = parsed.scm_sf_pct || 0;
+            
+            const chkFA = document.getElementById("field_chk_fa");
+            const chkGGBS = document.getElementById("field_chk_ggbs");
+            const chkSF = document.getElementById("field_chk_sf");
+
+            if (chkFA) chkFA.checked = (fa > 0);
+            if (chkGGBS) chkGGBS.checked = (ggbs > 0);
+            if (chkSF) chkSF.checked = (sf > 0);
+        }
+    }
+
+    function renderLiveChips(parsed, extractedKeys, clampedKeys) {
+        liveChipsContainer.innerHTML = "";
+        const schema = window.TYPE_SCHEMAS[activeType];
+        if (!schema) return;
+
+        const extractedSet = new Set(extractedKeys || []);
+
+        (schema.fields || []).forEach(f => {
+            const val = parsed[f.key] !== undefined ? parsed[f.key] : f.default;
+            const isExtracted = extractedSet.has(f.key);
+            const isClamped = !!clampedKeys[f.key];
+
+            let chipClass = "bg-slate-100 text-slate-500 border border-slate-200 font-normal"; // default muted
+            if (isClamped) {
+                chipClass = "bg-amber-50 text-amber-900 border border-amber-300 font-bold shadow-xs";
+            } else if (isExtracted) {
+                chipClass = "bg-teal-50 text-teal-900 border border-teal-300 font-bold shadow-xs";
+            }
+
+            let displayVal = val;
+            if (typeof val === "boolean") displayVal = val ? "Yes" : "No";
+
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = `px-2 py-0.5 rounded text-[11px] cursor-pointer transition hover:scale-105 ${chipClass}`;
+            chip.innerHTML = `<span class="opacity-75">${f.label}:</span> <span>${displayVal}</span>${f.unit ? `<span class="opacity-60 text-[9px] ml-0.5">${f.unit}</span>` : ''}${isClamped ? ' ⚠️' : ''}`;
+            
+            // Clicking chip focuses field in parameters section
+            chip.addEventListener("click", () => {
+                const targetInput = document.getElementById(`field_${f.key}`);
+                if (targetInput) {
+                    targetInput.focus();
+                    targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetInput.classList.add("ring-2", "ring-teal-500");
+                    setTimeout(() => targetInput.classList.remove("ring-2", "ring-teal-500"), 1200);
+                }
+            });
+
+            liveChipsContainer.appendChild(chip);
+        });
+    }
+
+    function attachFormSyncListeners() {
+        const schema = window.TYPE_SCHEMAS[activeType];
+        if (!schema) return;
+
+        (schema.fields || []).forEach(f => {
+            const el = document.getElementById(`field_${f.key}`);
+            if (!el) return;
+
+            el.addEventListener("input", () => {
+                // Update parsedData in-memory
+                let val = el.value;
+                if (f.kind === "number") val = parseFloat(el.value);
+                else if (f.kind === "toggle") val = el.checked;
+
+                parsedData[f.key] = val;
+                
+                // Re-render chips to show user-edited values in bold
+                renderLiveChips(parsedData, Object.keys(parsedData), {});
+            });
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TYPE SELECTOR LISTENERS (AUTO VS OVERRIDE)
+    // ─────────────────────────────────────────────────────────────────────────
+    selectConcreteType.addEventListener("change", () => {
+        const val = selectConcreteType.value;
+        if (val === "auto") {
+            isAutoMode = true;
+            // If already detected a type from problem text, switch to it, else conventional
+            setActiveType(detectedType || "conventional");
+        } else {
+            // User explicit override locks until they choose Auto again
+            isAutoMode = false;
+            setActiveType(val);
+        }
+    });
+
+    btnApplyDetected.addEventListener("click", () => {
+        if (detectedType) {
+            selectConcreteType.value = detectedType;
+            isAutoMode = false;
+            setActiveType(detectedType);
+        }
+    });
+
+    btnDismissDetected.addEventListener("click", () => {
+        singleDetectionPill.classList.add("hidden");
+    });
+
+    btnSample.addEventListener("click", () => {
+        problemText.value = "Design M40 concrete for severe marine exposure with 20% Fly Ash and 5% Silica Fume, 100mm slump, OPC 53 grade.";
+        triggerLiveParse();
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CALCULATION SUBMISSION & EXECUTION
+    // ─────────────────────────────────────────────────────────────────────────
+    btnCalc.addEventListener("click", async () => {
+        errorBox.classList.add("hidden");
+        btnSpinner.classList.remove("hidden");
+        btnText.textContent = "Proportioning...";
+
+        const schema = window.TYPE_SCHEMAS[activeType];
+        const payload = {
+            problem_text: problemText.value.trim(),
+            concrete_type: activeType
+        };
+
+        // Extract strictly and only the fields defined in the active schema
+        (schema.fields || []).forEach(f => {
+            const el = document.getElementById(`field_${f.key}`);
+            if (!el) return;
+
+            if (f.kind === "number") {
+                const num = parseFloat(el.value);
+                if (!isNaN(num)) payload[f.key] = num;
+            } else if (f.kind === "toggle") {
+                payload[f.key] = el.checked;
+            } else {
+                if (el.value !== "") payload[f.key] = el.value;
+            }
+        });
+
+        // Conventional multi-SCM parsing for IS 10262
+        if (activeType === "conventional") {
+            const scmList = [];
+            const faVal = parseFloat(document.getElementById("field_scm_fly_ash_pct")?.value || 0);
+            const ggbsVal = parseFloat(document.getElementById("field_scm_ggbs_pct")?.value || 0);
+            const sfVal = parseFloat(document.getElementById("field_scm_sf_pct")?.value || 0);
+
+            if (faVal > 0) scmList.push({ type: "FA", percent: faVal });
+            if (ggbsVal > 0) scmList.push({ type: "GGBS", percent: ggbsVal });
+            if (sfVal > 0) scmList.push({ type: "SF", percent: sfVal });
+            payload.scm = scmList;
+
+            // Lab test data
+            const sgCement = parseFloat(document.getElementById("field_sg_cement")?.value);
+            const sgCa = parseFloat(document.getElementById("field_sg_ca")?.value);
+            const sgFa = parseFloat(document.getElementById("field_sg_fa")?.value);
+            const absCa = parseFloat(document.getElementById("field_abs_ca")?.value);
+            const absFa = parseFloat(document.getElementById("field_abs_fa")?.value);
+
+            if (!isNaN(sgCement)) payload.sg_cement = sgCement;
+            if (!isNaN(sgCa)) payload.sg_ca = sgCa;
+            if (!isNaN(sgFa)) payload.sg_fa = sgFa;
+            if (!isNaN(absCa)) payload.abs_ca = absCa;
+            if (!isNaN(absFa)) payload.abs_fa = absFa;
+        }
+
+        try {
+            const resp = await fetch("/api/design", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await resp.json();
+
+            if (!resp.ok) {
+                let msg = "Failed to calculate mix";
+                if (typeof data.detail === "string") {
+                    msg = data.detail;
+                } else if (data.detail && typeof data.detail === "object") {
+                    msg = data.detail.message || "Validation failed";
+                    if (data.detail.errors && Array.isArray(data.detail.errors)) {
+                        msg += ": " + data.detail.errors.join("; ");
+                    }
+                }
+                throw new Error(msg);
+            }
+
+            renderResults(data);
+            placeholder.classList.add("hidden");
+            resultsContainer.classList.remove("hidden");
+
+        } catch (err) {
+            errorDetails.textContent = err.message;
+            errorBox.classList.remove("hidden");
+        } finally {
+            btnSpinner.classList.add("hidden");
+            btnText.textContent = activeType === "conventional" 
+                ? "Execute IS 10262:2019 Proportioning Engine" 
+                : `Generate ${schema.name} Mix Proposal`;
+        }
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // RESULTS DISPATCH & RENDERING
+    // ─────────────────────────────────────────────────────────────────────────
+    function renderResults(data) {
+        const res = data.result;
+
+        if (activeType === "conventional" && res.engine !== "special-reference") {
+            specialResults.classList.add("hidden");
+            conventionalResults.classList.remove("hidden");
+            renderConventionalResults(data);
+        } else {
+            conventionalResults.classList.add("hidden");
+            specialResults.classList.remove("hidden");
+            renderSpecialResults(data);
+        }
+    }
+
+    function renderConventionalResults(data) {
+        const mix = data.result.mix_per_m3;
+        document.getElementById("resTargetSummary").textContent = `M${data.parsed_inputs.fck} Concrete (${(data.parsed_inputs.exposure||'MODERATE').toUpperCase()})`;
+        document.getElementById("resRatio").textContent = mix.ratio_by_mass_cementitious || "1 : 2 : 3";
+        document.getElementById("resCement").textContent = mix.cement;
+        document.getElementById("resWater").textContent = mix.water;
+        document.getElementById("resWcVal").textContent = `Adopted w/c: ${mix.w_cm}`;
+        document.getElementById("resFA").textContent = mix.fine_aggregate_ssd;
+        document.getElementById("resCA").textContent = mix.coarse_aggregate_ssd;
+
+        const scmEntries = Object.entries(mix.scm || {});
+        if (scmEntries.length > 0) {
+            document.getElementById("resScmBreakdown").textContent = scmEntries.map(([t, kg]) => `${t}: ${kg} kg/m³`).join(" + ");
+        } else {
+            document.getElementById("resScmBreakdown").textContent = "None (100% OPC)";
+        }
+        document.getElementById("resSpMass").textContent = `${mix.admixture || 0.0} kg/m³`;
+
+        const fAdj = mix.field_adjusted || {};
+        document.getElementById("resFieldAdj").textContent = `Water: ${fAdj.water||'-'} kg | FA: ${fAdj.fine_aggregate||'-'} kg | CA: ${fAdj.coarse_aggregate||'-'} kg`;
+
+        // Audit rationale table
+        const tbodyAudit = document.getElementById("auditTableBody");
+        const rows = [];
+        const fieldLabels = {
+            fck: "Concrete Grade (fck)", exposure: "Exposure Condition", member: "Member Construction",
+            max_size: "Max Aggregate Size", slump: "Workability / Slump", zone: "Sand Grading Zone",
+            cement_grade: "Cement Type & Grade", placement: "Placement Method", supervision: "Degree of Supervision",
+            agg_type: "Aggregate Shape", scm: "Mineral Admixtures"
+        };
+
+        if (data.facts) {
+            data.facts.forEach(f => {
+                const label = fieldLabels[f.field] || f.field;
+                rows.push(`
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2.5 px-3 font-semibold text-slate-800">${label}</td>
+                        <td class="py-2.5 px-3 font-mono font-bold text-teal-800">${f.value}</td>
+                        <td class="py-2.5 px-3 text-slate-600"><span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200 mr-1.5">User Fact</span>${f.source}</td>
+                    </tr>
+                `);
+            });
+        }
+        tbodyAudit.innerHTML = rows.join("");
+
+        // Code verification steps & Figure 1 SVG graph
+        const stepsContainer = document.getElementById("resStepsContainer");
+        stepsContainer.innerHTML = (data.result.steps || []).map((s, idx) => `
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 space-y-2 text-xs">
+                <div class="flex justify-between items-center border-b border-slate-200/60 pb-1.5">
+                    <span class="font-bold text-slate-800">${idx + 1}. ${s.step}</span>
+                    <span class="font-mono text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded">${s.clause}</span>
+                </div>
+                <div class="font-mono text-[11px] text-slate-800 bg-white p-2 rounded-lg border border-slate-200/80">
+                    <span class="font-bold text-teal-700">Calculation:</span> ${s.calculation || s.note || ''}
+                </div>
+                ${s.has_graph && s.graph_data ? renderStrengthCurveSVG(s.graph_data) : ''}
+            </div>
+        `).join("");
+
+        // Similar Benchmark Examples
+        const examplesDiv = document.getElementById("similarExamplesList");
+        if (data.retrieved_examples && data.retrieved_examples.length > 0) {
+            examplesDiv.innerHTML = data.retrieved_examples.map(ex => `
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-slate-800">${ex.external_id} (${ex.grade})</span>
+                        <span class="text-teal-700 font-semibold">Similarity: ${(ex.similarity_score * 100).toFixed(0)}%</span>
+                    </div>
+                    <p class="text-slate-600 line-clamp-2">${ex.problem_statement}</p>
+                    <div class="mt-2 flex gap-4 text-[11px] text-slate-500 font-mono">
+                        <span>w/c: ${ex.mix_per_m3?.w_cm}</span>
+                        <span>Cement: ${ex.mix_per_m3?.cement} kg</span>
+                        <a href="/examples/${ex.external_id}" class="text-teal-700 hover:underline ml-auto font-sans font-semibold">View Solution &rarr;</a>
+                    </div>
+                </div>
+            `).join("");
+        } else {
+            examplesDiv.innerHTML = `<p class="text-xs text-slate-400">No benchmark examples indexed yet.</p>`;
+        }
+    }
+
+    function renderSpecialResults(data) {
+        const res = data.result;
+        const schema = window.TYPE_SCHEMAS[activeType] || {};
+
+        document.getElementById("specialTypeTitle").textContent = `${schema.name || activeType.toUpperCase()} Mix Proposal`;
+        document.getElementById("specialBaseId").textContent = res.base_example_id || "REF";
+        document.getElementById("specialDisclaimerText").textContent = res.disclaimer || "Reference-based mix proposal. Trial mixes and lab verification are mandatory.";
+
+        const vBadge = document.getElementById("specialVerificationBadge");
+        if (res.verification_status === "verified") {
+            vBadge.textContent = "Verified Reference Mix";
+            vBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+        } else {
+            vBadge.textContent = "Literature Reference";
+            vBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300";
+        }
+
+        const sRange = res.indicative_28d_range || [30, 40];
+        document.getElementById("specialStrengthRange").textContent = `${Math.round(sRange[0])} – ${Math.round(sRange[1])} MPa`;
+
+        // 1. Proposed Mix (kg/m3 table)
+        const compsTable = document.getElementById("specialQuantitiesTable");
+        const compEntries = Object.entries(res.components_kg || {});
+        compsTable.innerHTML = compEntries.map(([comp, val]) => {
+            const prettyName = comp.replace(/_kg|_litres/g, "").replace(/_/g, " ").toUpperCase();
+            const num = (typeof val === "number") ? val.toFixed(1) : (parseFloat(val) ? parseFloat(val).toFixed(1) : val);
+            return `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-2.5 px-3 font-semibold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+                        ${prettyName}
+                    </td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold text-teal-800">${num}</td>
+                    <td class="py-2.5 px-3 text-slate-500 italic">Constituent per 1 m³ (absolute volume closed)</td>
+                </tr>
+            `;
+        }).join("");
+
+        // 2. Key Parameters
+        document.getElementById("specialCuring").textContent = res.curing || "Standard Curing";
+        document.getElementById("specialAir").textContent = (res.parameters?.entrapped_air_pct || 1.5) + "%";
+        document.getElementById("specialWorkability").textContent = res.expected_properties?.workability || "Good fresh consistency";
+        
+        const extraParams = Object.entries(res.parameters || {})
+            .filter(([k]) => k !== 'entrapped_air_pct')
+            .map(([k, v]) => `${k}: ${v}`).join(", ");
+        document.getElementById("specialParamExtra").textContent = extraParams || "-";
+
+        // 3. Strength Basis
+        document.getElementById("specialStrengthBasis").textContent = res.strength_basis || "Anchored on peer-reviewed experimental test databases with physical closure rules.";
+
+        // Render Step-by-Step Technical Calculation Log
+        const stepsContainer = document.getElementById("specialStepsContainer");
+        if (stepsContainer) {
+            const steps = res.steps || [];
+            if (steps.length > 0) {
+                stepsContainer.innerHTML = steps.map(s => `
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 transition space-y-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/60 pb-2">
+                            <span class="font-bold text-slate-900 text-xs sm:text-sm">${s.step}</span>
+                            <span class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-teal-100/70 text-teal-900 border border-teal-200 self-start sm:self-auto">${s.clause || 'Literature Anchor'}</span>
+                        </div>
+                        ${s.clause_statement ? `<p class="text-xs text-slate-600 italic leading-relaxed">${s.clause_statement}</p>` : ''}
+                        ${s.formula ? `
+                            <div class="px-2.5 py-1.5 bg-slate-100 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-800">
+                                <span class="text-slate-400 uppercase text-[9px] font-bold block mb-0.5">Governing Formula:</span>
+                                <span>${s.formula}</span>
+                            </div>
+                        ` : ''}
+                        <div class="p-2.5 bg-white rounded-lg border border-teal-200/90 font-mono text-xs text-teal-950 font-semibold leading-relaxed">
+                            <span class="text-teal-700 uppercase text-[9px] font-bold block mb-0.5 font-sans">Calculation & Substitution:</span>
+                            ${s.calculation || s.value || ''}
+                        </div>
+                        ${s.note ? `<p class="text-[11px] text-slate-500 leading-relaxed font-sans"><strong class="text-slate-700">Engineering Note:</strong> ${s.note}</p>` : ''}
+                    </div>
+                `).join("");
+            } else {
+                stepsContainer.innerHTML = '<p class="text-xs text-slate-400">Standard reference-based formulation.</p>';
+            }
+        }
+
+        // 4. Rule Checks
+        const checksList = document.getElementById("specialChecksList");
+        checksList.innerHTML = (res.checks || []).map(ch => {
+            const isPass = ch.passed;
+            const badgeClass = isPass ? "bg-emerald-50 text-emerald-800 border-emerald-300" : (ch.status === "WARN" ? "bg-amber-50 text-amber-800 border-amber-300" : "bg-red-50 text-red-800 border-red-300");
+            return `
+                <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start justify-between gap-3">
+                    <div class="space-y-0.5">
+                        <div class="font-bold text-slate-800 flex items-center gap-2">
+                            <span>${ch.check}</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded border ${badgeClass}">${ch.status || (isPass ? 'PASS' : 'WARN')}</span>
+                        </div>
+                        <p class="text-slate-500 text-[11px] leading-relaxed">${ch.note || ''}</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="font-mono font-bold text-slate-900 block">${ch.value}</span>
+                        <span class="text-[10px] text-slate-400">Limit: ${ch.limit}</span>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        // 5. Curing & Expected Properties
+        const propsDiv = document.getElementById("specialExpectedProps");
+        propsDiv.innerHTML = Object.entries(res.expected_properties || {}).map(([k, v]) => `
+            <div><strong class="text-slate-800 uppercase text-[10px]">${k.replace(/_/g, ' ')}:</strong> <span class="text-slate-600">${v}</span></div>
+        `).join("") || '<p class="text-slate-400">Standard laboratory specifications.</p>';
+
+        // 6. Base Reference Mix & Similar Candidates
+        const similarDiv = document.getElementById("specialSimilarList");
+        if (res.similar_examples && res.similar_examples.length > 0) {
+            similarDiv.innerHTML = res.similar_examples.map(ex => `
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center text-xs">
+                    <div>
+                        <span class="font-mono font-bold text-teal-800">${ex.id}</span>
+                        <span class="text-slate-600 ml-2">${ex.statement || ''}</span>
+                    </div>
+                    <a href="/examples/${ex.id}" class="text-teal-700 hover:underline font-semibold shrink-0 ml-3">Inspect &rarr;</a>
+                </div>
+            `).join("");
+        } else {
+            similarDiv.innerHTML = `<p class="text-slate-400">No other candidate mixes in cluster.</p>`;
+        }
+
+        // 7. Sources
+        const sourcesUl = document.getElementById("specialSourcesList");
+        sourcesUl.innerHTML = (res.sources || []).map(s => `<li>${s}</li>`).join("");
+    }
+
+    function renderStrengthCurveSVG(g) {
+        if (!g) return '';
+        const W = 420, H = 200, padL = 40, padB = 25, padR = 20, padT = 20;
+        const plotW = W - padL - padR, plotH = H - padT - padB;
+        const minWc = 0.25, maxWc = 0.70, minF = 15, maxF = 75;
+        const toX = (wc) => padL + ((wc - minWc) / (maxWc - minWc)) * plotW;
+        const toY = (f) => (H - padB) - ((f - minF) / (maxF - minF)) * plotH;
+
+        const curves = [
+            { grade: 33, A: 110.0, B: 2.40 },
+            { grade: 43, A: 129.0, B: 2.27 },
+            { grade: 53, A: 157.0, B: 2.32 }
+        ];
+
+        let paths = "";
+        curves.forEach(c => {
+            const isSel = (c.grade === g.cement_grade);
+            const color = isSel ? "#0F766E" : "#CBD5E1";
+            let d = "";
+            for (let wc = 0.28; wc <= 0.68; wc += 0.02) {
+                const f = c.A * Math.exp(-c.B * wc);
+                d += (d === "" ? "M" : "L") + `${toX(wc).toFixed(1)},${toY(f).toFixed(1)}`;
+            }
+            paths += `<path d="${d}" fill="none" stroke="${color}" stroke-width="${isSel ? 2.5 : 1.2}" />`;
+        });
+
+        const ptX = toX(g.wc_strength);
+        const ptY = toY(g.target_fck);
+
+        return `
+            <div class="mt-2.5 p-2.5 bg-white rounded-xl border border-teal-200">
+                <div class="text-[10px] font-bold text-teal-900 mb-1">IS 10262:2019 Figure 1 Curve &mdash; Target f'ck ${g.target_fck} N/mm² ➔ w/c ${g.wc_strength}</div>
+                <svg viewBox="0 0 ${W} ${H}" class="w-full max-w-sm mx-auto overflow-visible font-sans text-[8px]">
+                    <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#94A3B8" />
+                    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#94A3B8" />
+                    ${paths}
+                    <circle cx="${ptX}" cy="${ptY}" r="4" fill="#E11D48" />
+                    <line x1="${padL}" y1="${ptY}" x2="${ptX}" y2="${ptY}" stroke="#E11D48" stroke-dasharray="2,2" />
+                    <line x1="${ptX}" y1="${ptY}" x2="${ptX}" y2="${H - padB}" stroke="#E11D48" stroke-dasharray="2,2" />
+                </svg>
+            </div>
+        `;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // INITIALIZATION ON PAGE LOAD
+    // ─────────────────────────────────────────────────────────────────────────
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryPrompt = urlParams.get("prompt");
+    const queryType = urlParams.get("type");
+
+    if (queryType && window.TYPE_SCHEMAS[queryType]) {
+        isAutoMode = false;
+        selectConcreteType.value = queryType;
+        setActiveType(queryType, false);
+    } else {
+        setActiveType("conventional", false);
+    }
+
+    if (queryPrompt) {
+        problemText.value = queryPrompt;
+        triggerLiveParse().then(() => {
+            btnCalc.click();
+        });
+    } else {
+        // Start with clean empty workbench without pre-filled text
+        problemText.value = "";
+    }
+});
+</script>
+{% endblock %}
+

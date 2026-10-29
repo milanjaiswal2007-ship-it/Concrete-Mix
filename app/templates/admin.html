@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel & Knowledge Base Ingestion — ConcreteMix AI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Admin & Knowledge Ingestion</h1>
+        <p class="text-sm text-slate-500 mt-2">Manage solved benchmark problems, audit verification badges, and rebuild the retrieval index.</p>
+    </div>
+
+    <!-- Admin Key Input -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Administrator Key</label>
+        <div class="flex gap-4">
+            <input type="password" id="adminKey" class="w-full text-sm rounded-xl border border-slate-300 p-3 font-mono" placeholder="Enter ADMIN_KEY (default: change-me-in-production)">
+            <button id="btnCheckStatus" class="px-5 py-3 rounded-xl font-semibold text-white bg-slate-800 hover:bg-slate-900 transition text-sm shrink-0">
+                Verify Status
+            </button>
+        </div>
+    </div>
+
+    <!-- Status Output -->
+    <div id="statusCard" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <h2 class="text-base font-bold text-slate-900">System Repository Status</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="text-[10px] uppercase font-bold text-slate-400">Total Problems</div>
+                <div id="statProblems" class="text-2xl font-black text-slate-900 mt-1">-</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="text-[10px] uppercase font-bold text-slate-400">Documents</div>
+                <div id="statDocs" class="text-2xl font-black text-slate-900 mt-1">-</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="text-[10px] uppercase font-bold text-slate-400">Indexed Chunks</div>
+                <div id="statChunks" class="text-2xl font-black text-slate-900 mt-1">-</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="text-[10px] uppercase font-bold text-slate-400">DB Size</div>
+                <div id="statDbSize" class="text-2xl font-black text-slate-900 mt-1">-</div>
+            </div>
+        </div>
+
+        <!-- Breakdown Counts by Concrete Type -->
+        <div class="border-t border-slate-100 pt-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Record Breakdown by Concrete Type</h3>
+            <div id="typeBreakdownGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-xs">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Individual Record Verification / Promotion Tool -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-base font-bold text-slate-900">Record Verification & Promotion Manager</h2>
+        <p class="text-xs text-slate-500">Promote a literature reference mix to Verified status after laboratory trial validation.</p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Example ID</label>
+                <input type="text" id="verifyId" class="w-full text-xs rounded-xl border border-slate-300 p-2.5 font-mono" placeholder="e.g. GP016 or P001">
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Target Status</label>
+                <select id="verifyStatus" class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
+                    <option value="verified">Verified (Green Badge)</option>
+                    <option value="literature_based_unverified">Literature Reference (Amber Badge)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Lab / Audit Notes</label>
+                <input type="text" id="verifyNotes" class="w-full text-xs rounded-xl border border-slate-300 p-2.5" placeholder="Optional audit memo">
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+            <button id="btnUpdateVerification" class="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-emerald-700 hover:bg-emerald-800 transition">
+                Update Record Status
+            </button>
+            <span id="verifyFeedback" class="text-xs font-medium text-slate-600"></span>
+        </div>
+    </div>
+
+    <!-- Bundled Import & Rebuild Controls -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <h2 class="text-base font-bold text-slate-900">Knowledge Ingestion Operations</h2>
+        
+        <div class="flex flex-wrap gap-4">
+            <button id="btnImportBundled" class="px-5 py-3 rounded-xl font-semibold text-white bg-slate-700 hover:bg-slate-800 transition text-sm">
+                Import Conventional 100 Mix Problems
+            </button>
+            <button id="btnImportSpecial" class="px-5 py-3 rounded-xl font-semibold text-white bg-teal-700 hover:bg-teal-800 transition text-sm">
+                Import Special Concrete Reference Mixes (301 Records)
+            </button>
+            <button id="btnRebuildIndex" class="px-5 py-3 rounded-xl font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition text-sm">
+                Rebuild TF-IDF & BM25 Search Index
+            </button>
+        </div>
+
+        <div id="adminActionOutput" class="hidden p-4 rounded-xl text-xs font-mono bg-slate-50 border border-slate-200 overflow-x-auto"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const adminKey = document.getElementById("adminKey");
+    const btnCheckStatus = document.getElementById("btnCheckStatus");
+    const statusCard = document.getElementById("statusCard");
+    const statProblems = document.getElementById("statProblems");
+    const statDocs = document.getElementById("statDocs");
+    const statChunks = document.getElementById("statChunks");
+    const statDbSize = document.getElementById("statDbSize");
+    const typeBreakdownGrid = document.getElementById("typeBreakdownGrid");
+
+    const btnImportBundled = document.getElementById("btnImportBundled");
+    const btnImportSpecial = document.getElementById("btnImportSpecial");
+    const btnRebuildIndex = document.getElementById("btnRebuildIndex");
+    const output = document.getElementById("adminActionOutput");
+
+    const verifyId = document.getElementById("verifyId");
+    const verifyStatus = document.getElementById("verifyStatus");
+    const verifyNotes = document.getElementById("verifyNotes");
+    const btnUpdateVerification = document.getElementById("btnUpdateVerification");
+    const verifyFeedback = document.getElementById("verifyFeedback");
+
+    function getKey() {
+        return adminKey.value.trim() || "change-me-in-production";
+    }
+
+    btnCheckStatus.addEventListener("click", async () => {
+        try {
+            const res = await fetch("/api/admin/status", {
+                headers: { "x-admin-key": getKey() }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Authentication failed");
+
+            statProblems.textContent = data.total_examples;
+            statDocs.textContent = data.total_documents;
+            statChunks.textContent = data.total_chunks;
+            statDbSize.textContent = `${data.database_size_mb} MB`;
+
+            // Populate type breakdown
+            if (data.type_counts) {
+                typeBreakdownGrid.innerHTML = "";
+                for (const [ctype, count] of Object.entries(data.type_counts)) {
+                    const card = document.createElement("div");
+                    card.className = "p-2 rounded-lg bg-slate-50 border border-slate-100 flex justify-between items-center";
+                    card.innerHTML = `<span class="capitalize text-slate-700">${ctype.replace(/-/g, ' ')}</span><span class="font-mono font-bold text-teal-800">${count}</span>`;
+                    typeBreakdownGrid.appendChild(card);
+                }
+            }
+
+            statusCard.classList.remove("hidden");
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+
+    btnUpdateVerification.addEventListener("click", async () => {
+        const id = verifyId.value.trim();
+        if (!id) return alert("Please enter an Example ID (e.g. GP016)");
+        const st = verifyStatus.value;
+        const nt = verifyNotes.value.trim();
+
+        verifyFeedback.textContent = "Updating...";
+        verifyFeedback.className = "text-xs font-medium text-slate-600";
+
+        try {
+            const res = await fetch(`/api/admin/verify-example/${encodeURIComponent(id)}?status=${encodeURIComponent(st)}&notes=${encodeURIComponent(nt)}`, {
+                method: "POST",
+                headers: { "x-admin-key": getKey() }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Update failed");
+
+            verifyFeedback.textContent = `Success: ${id} updated to ${st}`;
+            verifyFeedback.className = "text-xs font-bold text-emerald-700";
+        } catch (err) {
+            verifyFeedback.textContent = "Error: " + err.message;
+            verifyFeedback.className = "text-xs font-bold text-red-600";
+        }
+    });
+
+    btnImportBundled.addEventListener("click", async () => {
+        output.classList.remove("hidden");
+        output.textContent = "Importing 100 problems...";
+        try {
+            const res = await fetch("/api/admin/import-bundled-examples", {
+                method: "POST",
+                headers: { "x-admin-key": getKey() }
+            });
+            const data = await res.json();
+            output.textContent = JSON.stringify(data, null, 2);
+            btnCheckStatus.click();
+        } catch (err) {
+            output.textContent = "Error: " + err.message;
+        }
+    });
+
+    btnImportSpecial.addEventListener("click", async () => {
+        output.classList.remove("hidden");
+        output.textContent = "Importing 301 Special Concrete Reference Records...";
+        try {
+            const res = await fetch("/api/admin/import-special-examples", {
+                method: "POST",
+                headers: { "x-admin-key": getKey() }
+            });
+            const data = await res.json();
+            output.textContent = JSON.stringify(data, null, 2);
+            btnCheckStatus.click();
+        } catch (err) {
+            output.textContent = "Error: " + err.message;
+        }
+    });
+
+    btnRebuildIndex.addEventListener("click", async () => {
+        output.classList.remove("hidden");
+        output.textContent = "Rebuilding hybrid retrieval index...";
+        try {
+            const res = await fetch("/api/admin/rebuild-index", {
+                method: "POST",
+                headers: { "x-admin-key": getKey() }
+            });
+            const data = await res.json();
+            output.textContent = JSON.stringify(data, null, 2);
+            btnCheckStatus.click();
+        } catch (err) {
+            output.textContent = "Error: " + err.message;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation & FAQ — ConcreteMix AI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Documentation & Technical Reference</h1>
+        <p class="text-sm text-slate-500 mt-2">Guidance on platform architecture, input boundaries, special concrete routing, and REST API specifications.</p>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
+        <h2 class="text-xl font-bold text-slate-900">Frequently Asked Questions</h2>
+        
+        <div>
+            <h3 class="text-base font-bold text-slate-900 mb-2">Why is IS 10262 not used for Geopolymer, UHPC, or ECC?</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Indian Standard <strong>IS 10262:2019</strong> was formulated empirically for conventional Portland cement hydration (OPC, PPC, PSC). Advanced special concretes follow completely different chemical and physical mechanisms:
+            </p>
+            <ul class="list-disc pl-5 mt-2 space-y-1 text-xs text-slate-600">
+                <li><strong>Geopolymer:</strong> Involves polycondensation of aluminosilicate gel activated by concentrated alkalis (8–16M NaOH + Na2SiO3), not water-cement hydration.</li>
+                <li><strong>UHPC:</strong> Operates at w/b &le; 0.22 with fine particles under 0.6 mm, bypassing traditional coarse aggregate proportioning.</li>
+                <li><strong>ECC:</strong> Governed by steady-state crack bridging micromechanics and PVA fiber volume fractions rather than standard compressive strength charts.</li>
+            </ul>
+            <p class="text-xs text-amber-900 bg-amber-50 p-3 rounded-lg border border-amber-200 mt-3">
+                All special concretes are served as <strong>literature reference-based proposals</strong> anchored to published benchmarks, carrying mandatory trial mix warnings.
+            </p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-6">
+            <h3 class="text-base font-bold text-slate-900 mb-2">What do the Amber vs Green verification badges mean?</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Every special mix in the library carries a verification badge:
+            </p>
+            <div class="flex flex-wrap gap-4 mt-2 text-xs">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> Literature Reference (Unverified)
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Verified Benchmark
+                </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">
+                Unverified mixes are literature-derived baselines requiring initial laboratory batching. Administrators can promote records to Verified once physical lab test data or peer-reviewed batch results are confirmed.
+            </p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-6">
+            <h3 class="text-base font-bold text-slate-900 mb-2">Does this mix design platform use an external LLM API?</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                <strong>No.</strong> There is zero runtime dependence on external generative LLM APIs (OpenAI, Gemini, Claude, etc.). Parameter parsing uses deterministic regex matchers and keyword bank scoring (1,200+ phrases), RAG retrieval uses hybrid BM25 and local TF-IDF embeddings, and calculations run on verified offline Python engines.
+            </p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-6">
+            <h3 class="text-base font-bold text-slate-900 mb-2">Can calculated proportions be used directly on site?</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                No mathematical proportioning algorithm replaces physical laboratory testing. Mix designs produce target starting proportions that <strong>must be verified by laboratory trial mixes</strong> to confirm actual workability, 7-day strength, and 28-day compressive strength with locally sourced batch materials.
+            </p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-6">
+            <h3 class="text-base font-bold text-slate-900 mb-2">How are field moisture and water absorption handled?</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Mix designs calculate saturated-surface-dry (SSD) quantities. When aggregates in the yard possess free surface moisture or water absorption deficiencies, the mixing water and aggregate batch weights are automatically adjusted in the "Site Adjusted Field Batching" summary.
+            </p>
+        </div>
+    </div>
+
+    <!-- REST API Reference Section -->
+    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <h2 class="text-xl font-bold text-slate-900">Developer & REST API Reference</h2>
+        <p class="text-xs text-slate-500">
+            Automate mix proportioning, keyword detection, and library retrieval via JSON endpoints.
+        </p>
+
+        <div class="space-y-4 text-xs font-mono">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="flex items-center gap-2 mb-1.5 font-bold">
+                    <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px]">GET</span>
+                    <span class="text-slate-800">/api/concrete-types</span>
+                </div>
+                <p class="font-sans text-slate-600 text-xs">Returns metadata for all 12 special concrete types and conventional concrete, including total mix counts, primary references, and keyword counts.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="flex items-center gap-2 mb-1.5 font-bold">
+                    <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px]">GET</span>
+                    <span class="text-slate-800">/api/keywords/{concrete_type}</span>
+                </div>
+                <p class="font-sans text-slate-600 text-xs">Returns the full 100-keyword bank for a specific special concrete slug (e.g. <code>geopolymer</code>, <code>uhpc</code>, <code>ecc</code>).</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="flex items-center gap-2 mb-1.5 font-bold">
+                    <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px]">POST</span>
+                    <span class="text-slate-800">/api/design/parse</span>
+                </div>
+                <p class="font-sans text-slate-600 text-xs">Parses freeform natural-language text. Returns extracted conventional parameters plus <code>detected_type</code>, <code>confidence</code>, and <code>matched_keywords</code>.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="flex items-center gap-2 mb-1.5 font-bold">
+                    <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px]">POST</span>
+                    <span class="text-slate-800">/api/design</span>
+                </div>
+                <p class="font-sans text-slate-600 text-xs">Executes mix design calculation. Routes conventional inputs to IS 10262 and special types to the literature-anchored reference proposal engine.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="flex items-center gap-2 mb-1.5 font-bold">
+                    <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px]">GET</span>
+                    <span class="text-slate-800">/api/examples?concrete_type={type}&grade={grade}</span>
+                </div>
+                <p class="font-sans text-slate-600 text-xs">Query the 401 solved mix problem library with type, grade, and exposure filters.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
